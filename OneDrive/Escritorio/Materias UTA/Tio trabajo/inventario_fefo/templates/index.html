@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torre de Control FEFO - Almacén</title>
+    <!-- Bootstrap 5 y FontAwesome para iconos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .card-menu {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+        }
+        .card-menu:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .section-view {
+            display: none;
+        }
+        .section-view.active {
+            display: block;
+        }
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Barra de Navegación Superior -->
+    <nav class="navbar navbar-dark bg-dark shadow-sm py-3">
+        <div class="container">
+            <span class="navbar-brand fw-bold fs-4"><i class="fa-solid fa-boxes-stacked me-2"></i> Control Logístico FEFO</span>
+            <span class="text-white-50 small">Panel de Operaciones</span>
+        </div>
+    </nav>
+
+    <!-- Menú de Accesos Rápidos (Tarjetas Interactivas) -->
+    <div class="container my-4">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card card-menu bg-primary text-white p-3 text-center" onclick="cambiarVista('inventario')">
+                    <i class="fa-solid fa-warehouse fa-2x mb-2"></i>
+                    <h6 class="fw-bold mb-0">Inventario Actual</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card card-menu bg-success text-white p-3 text-center" onclick="cambiarVista('entrada')">
+                    <i class="fa-solid fa-truck-ramp-box fa-2x mb-2"></i>
+                    <h6 class="fw-bold mb-0">Entrada Lotes</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card card-menu bg-warning text-dark p-3 text-center" onclick="cambiarVista('salida')">
+                    <i class="fa-solid fa-dolly fa-2x mb-2"></i>
+                    <h6 class="fw-bold mb-0">Despachar Salida</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card card-menu bg-secondary text-white p-3 text-center" onclick="cambiarVista('catalogo')">
+                    <i class="fa-solid fa-folder-plus fa-2x mb-2"></i>
+                    <h6 class="fw-bold mb-0">Nuevo Catálogo</h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VISTA 1: INVENTARIO ================= -->
+        <div id="vista-inventario" class="section-view active">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold text-dark mb-0">Estado del Almacén (Semáforo FEFO)</h4>
+                <button class="btn btn-outline-dark btn-sm fw-bold" onclick="forzarSemaforo()">
+                    <i class="fa-solid fa-rotate me-1"></i> Recalcular Caducidades
+                </button>
+            </div>
+            <div class="table-container p-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Lote #</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Ingreso</th>
+                            <th>Disponible</th>
+                            <th>Semáforo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-inventario">
+                        <!-- Relleno dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= VISTA 2: ENTRADA DE LOTES ================= -->
+        <div id="vista-entrada" class="section-view">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold text-success mb-3"><i class="fa-solid fa-circle-plus me-2"></i> Registrar Entrada de Lote</h4>
+                            <p class="text-muted small mb-4">Ingresa nueva mercancía al almacén asignándole su fecha de llegada y cantidad inicial.</p>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ID del Producto</label>
+                                <input type="number" id="lote-producto" class="form-control" placeholder="Ej. 1">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Cantidad de Unidades</label>
+                                <input type="number" id="lote-cantidad" class="form-control" placeholder="Ej. 150">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Fecha de Ingreso</label>
+                                <input type="date" id="lote-fecha" class="form-control">
+                            </div>
+                            <button class="btn btn-success w-100 fw-bold py-2" onclick="registrarLote()">Guardar Entrada en Almacén</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VISTA 3: SALIDAS (FEFO) ================= -->
+        <div id="vista-salida" class="section-view">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold text-warning text-dark mb-3"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Salida de Mercancía (FEFO)</h4>
+                            <p class="text-muted small mb-4">El sistema descontará automáticamente del lote más próximo a vencer.</p>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ID del Producto a Despachar</label>
+                                <input type="number" id="salida-producto" class="form-control" placeholder="Ej. 1">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Cantidad Solicitada</label>
+                                <input type="number" id="salida-cantidad" class="form-control" placeholder="Ej. 40">
+                            </div>
+                            <button class="btn btn-dark w-100 fw-bold py-2" onclick="despacharMercancia()">Procesar Salida Automática</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VISTA 4: NUEVO CATÁLOGO ================= -->
+        <div id="vista-catalogo" class="section-view">
+            <div class="row g-4">
+                <!-- Crear Categoría -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-tags me-2"></i> Nueva Categoría</h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nombre de Categoría</label>
+                                <input type="text" id="cat-nombre" class="form-control" placeholder="Ej. Lácteos">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Días de Vida Útil</label>
+                                <input type="number" id="cat-dias" class="form-control" placeholder="Ej. 7">
+                            </div>
+                            <button class="btn btn-secondary w-100 fw-bold" onclick="crearCategoria()">Crear Categoría</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Crear Producto -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-box me-2"></i> Nuevo Producto</h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nombre del Producto</label>
+                                <input type="text" id="prod-nombre" class="form-control" placeholder="Ej. Leche Entera 1L">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ID de Categoría Asociada</label>
+                                <input type="number" id="prod-cat" class="form-control" placeholder="Ej. 1">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Stock Mínimo de Alerta</label>
+                                <input type="number" id="prod-stock" class="form-control" value="10">
+                            </div>
+                            <button class="btn btn-secondary w-100 fw-bold" onclick="crearProducto()">Registrar Producto</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script de Interactividad y Control de Vistas -->
+    <script>
+        // Control de pestañas visuales limpias
+        function cambiarVista(vista) {
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.getElementById('vista-' + vista).classList.add('active');
+            if(vista === 'inventario') cargarInventario();
+        }
+
+        // Cargar inventario en vivo
+        async function cargarInventario() {
+            try {
+                const respuesta = await fetch('/api/inventario');
+                const data = await respuesta.json();
+                const tabla = document.getElementById('tabla-inventario');
+                tabla.innerHTML = '';
+
+                if(data.inventario.length === 0) {
+                    tabla.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No hay lotes activos en el almacén.</td></tr>`;
+                    return;
+                }
+
+                data.inventario.forEach(item => {
+                    let badgeClass = 'bg-success';
+                    let textoEstado = 'Óptimo (Verde)';
+                    if (item.estado_semaforo === 'Amarillo') { badgeClass = 'bg-warning text-dark'; textoEstado = 'Próximo (Amarillo)'; }
+                    if (item.estado_semaforo === 'Rojo') { badgeClass = 'bg-danger'; textoEstado = 'Crítico (Rojo)'; }
+                    if (item.estado_semaforo === 'Negro') { badgeClass = 'bg-dark'; textoEstado = 'Caducado (Negro)'; }
+
+                    const fila = `
+                        <tr>
+                            <td class="fw-bold text-secondary">#${item.id_lote}</td>
+                            <td class="fw-bold text-dark">${item.producto}</td>
+                            <td>${item.categoria}</td>
+                            <td>${item.fecha_ingreso}</td>
+                            <td class="fw-bold text-primary fs-6">${item.cantidad_actual} u.</td>
+                            <td><span class="badge ${badgeClass} px-3 py-2">${textoEstado}</span></td>
+                        </tr>
+                    `;
+                    tabla.innerHTML += fila;
+                });
+            } catch (error) {
+                console.error("Error cargando inventario:", error);
+            }
+        }
+
+        // Forzar recálculo FEFO
+        async function forzarSemaforo() {
+            await fetch('/api/forzar_semaforo', { method: 'POST' });
+            cargarInventario();
+            alert('Semáforo actualizado correctamente con base en la fecha actual.');
+        }
+
+        // Registrar entrada de lote
+        async function registrarLote() {
+            const id_producto = document.getElementById('lote-producto').value;
+            const cantidad = document.getElementById('lote-cantidad').value;
+            const fecha_ingreso = document.getElementById('lote-fecha').value;
+
+            if(!id_producto || !cantidad || !fecha_ingreso) {
+                alert("Por favor completa todos los campos de la entrada.");
+                return;
+            }
+
+            const res = await fetch('/api/lotes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id_producto: parseInt(id_producto), cantidad: parseFloat(cantidad), fecha_ingreso })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                alert("¡Lote registrado con éxito!");
+                document.getElementById('lote-producto').value = '';
+                document.getElementById('lote-cantidad').value = '';
+                document.getElementById('lote-fecha').value = '';
+                cambiarVista('inventario');
+            } else { alert("Error: " + data.error); }
+        }
+
+        // Despachar salida FEFO
+        async function despacharMercancia() {
+            const id_producto = document.getElementById('salida-producto').value;
+            const cantidad = document.getElementById('salida-cantidad').value;
+
+            if(!id_producto || !cantidad) {
+                alert("Ingresa el ID del producto y la cantidad a despachar.");
+                return;
+            }
+
+            const res = await fetch('/api/salidas', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id_producto: parseInt(id_producto), cantidad: parseFloat(cantidad) })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                alert(data.mensaje);
+                document.getElementById('salida-producto').value = '';
+                document.getElementById('salida-cantidad').value = '';
+                cambiarVista('inventario');
+            } else { alert("Error: " + data.error); }
+        }
+
+        // Crear Categoría
+        async function crearCategoria() {
+            const nombre = document.getElementById('cat-nombre').value;
+            const dias_vida_util = document.getElementById('cat-dias').value;
+
+            if(!nombre || !dias_vida_util) { alert("Llena los campos de categoría."); return; }
+
+            const res = await fetch('/api/categorias', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ nombre, dias_vida_util: parseInt(dias_vida_util) })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                alert(`Categoría creada con ID: ${data.id_categoria}`);
+                document.getElementById('cat-nombre').value = '';
+                document.getElementById('cat-dias').value = '';
+            } else { alert("Error: " + data.error); }
+        }
+
+        // Crear Producto
+        async function crearProducto() {
+            const nombre = document.getElementById('prod-nombre').value;
+            const id_categoria = document.getElementById('prod-cat').value;
+            const stock_minimo = document.getElementById('prod-stock').value;
+
+            if(!nombre || !id_categoria) { alert("Llena los campos obligatorios del producto."); return; }
+
+            const res = await fetch('/api/productos', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ nombre, id_categoria: parseInt(id_categoria), stock_minimo: parseInt(stock_minimo) })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                alert(`Producto creado con ID: ${data.id_producto}`);
+                document.getElementById('prod-nombre').value = '';
+                document.getElementById('prod-cat').value = '';
+            } else { alert("Error: " + data.error); }
+        }
+
+        // Cargar automáticamente al iniciar
+        document.addEventListener('DOMContentLoaded', cargarInventario);
+    </script>
+</body>
+</html>
