@@ -3,7 +3,6 @@ import datetime
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Preparado para usar un disco persistente en Render posteriormente
 DB_NAME = os.getenv('DB_PATH', 'inventario.db')
 
 def get_db_connection():
@@ -32,7 +31,7 @@ def inicializar_base_datos():
                 nombre TEXT NOT NULL,
                 id_categoria INTEGER,
                 stock_minimo INTEGER DEFAULT 0,
-                FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria)
+                FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria) ON DELETE SET NULL
             );
             CREATE TABLE IF NOT EXISTS Lote (
                 id_lote INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,13 +40,14 @@ def inicializar_base_datos():
                 cantidad_actual REAL NOT NULL,
                 fecha_ingreso DATE NOT NULL,
                 estado_semaforo TEXT DEFAULT 'Verde',
-                FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
+                FOREIGN KEY (id_producto) REFERENCES Producto(id_producto) ON DELETE CASCADE
             );
             CREATE TABLE IF NOT EXISTS Fundacion (
                 id_fundacion INTEGER PRIMARY KEY AUTOINCREMENT,
                 nombre TEXT NOT NULL,
                 contacto_whatsapp TEXT,
-                acepta_desperdicio BOOLEAN DEFAULT 1
+                tipo_destino TEXT DEFAULT 'Beneficencia',
+                descripcion TEXT
             );
             CREATE TABLE IF NOT EXISTS Movimiento (
                 id_movimiento INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,9 +55,18 @@ def inicializar_base_datos():
                 tipo_movimiento TEXT NOT NULL,
                 cantidad REAL NOT NULL,
                 fecha_movimiento DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (id_lote) REFERENCES Lote(id_lote)
+                FOREIGN KEY (id_lote) REFERENCES Lote(id_lote) ON DELETE CASCADE
             );
         """)
+        
+        # Migración automática si la tabla Fundacion ya existía con el esquema anterior
+        cursor.execute("PRAGMA table_info(Fundacion)")
+        columnas = [col[1] for col in cursor.fetchall()]
+        if 'tipo_destino' not in columnas:
+            cursor.execute("ALTER TABLE Fundacion ADD COLUMN tipo_destino TEXT DEFAULT 'Beneficencia'")
+        if 'descripcion' not in columnas:
+            cursor.execute("ALTER TABLE Fundacion ADD COLUMN descripcion TEXT DEFAULT ''")
+            
         conn.commit()
     except sqlite3.Error as e:
         print(f"Error inicializando BD: {e}")
@@ -77,10 +86,6 @@ def inicializar_superusuario():
                 ('admin', pswd_hash, 'superuser')
             )
             conn.commit()
-            print("Superusuario por defecto (admin) creado.")
-    except sqlite3.Error as e:
-        print(f"Error creando superusuario: {e}")
-        conn.rollback()
     finally:
         conn.close()
 
@@ -90,7 +95,6 @@ def login(username, password):
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM Usuario WHERE username = ?", (username,))
         usuario = cursor.fetchone()
-        
         if usuario and check_password_hash(usuario['password_hash'], password):
             return dict(usuario)
         return None
@@ -98,7 +102,6 @@ def login(username, password):
         conn.close()
 
 def actualizar_semaforo():
-    print(f"[{datetime.datetime.now()}] Actualizando semáforo FEFO...")
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
@@ -110,7 +113,6 @@ def actualizar_semaforo():
             WHERE l.cantidad_actual > 0 AND l.estado_semaforo != 'Negro'
         """)
         lotes_activos = cursor.fetchall()
-        
         hoy = datetime.date.today()
         lotes_a_actualizar = []
 
@@ -129,7 +131,6 @@ def actualizar_semaforo():
         if lotes_a_actualizar:
             cursor.executemany("UPDATE Lote SET estado_semaforo = ? WHERE id_lote = ?", lotes_a_actualizar)
             conn.commit()
-            print(f"Semáforo actualizado: {len(lotes_a_actualizar)} lotes modificados.")
     finally:
         conn.close()
 
@@ -143,16 +144,40 @@ def crear_categoria(nombre, dias_vida_util):
     finally:
         conn.close()
 
+def actualizar_categoria(id_cat, nombre, dias):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE Categoria SET nombre = ?, dias_vida_util = ? WHERE id_categoria = ?", (nombre, dias, id_cat))
+        conn.commit()
+    finally:
+        conn.close()
+
+def eliminar_categoria(id_cat):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Categoria WHERE id_categoria = ?", (id_cat,))
+        conn.commit()
+    finally:
+        conn.close()
+
 def crear_producto(nombre, id_categoria, stock_minimo):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO Producto (nombre, id_categoria, stock_minimo) VALUES (?, ?, ?)", 
-            (nombre, id_categoria, stock_minimo)
-        )
+        cursor.execute("INSERT INTO Producto (nombre, id_categoria, stock_minimo) VALUES (?, ?, ?)", (nombre, id_categoria, stock_minimo))
         conn.commit()
         return cursor.lastrowid
+    finally:
+        conn.close()
+
+def eliminar_producto(id_prod):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Producto WHERE id_producto = ?", (id_prod,))
+        conn.commit()
     finally:
         conn.close()
 
@@ -160,19 +185,9 @@ def crear_lote(id_producto, cantidad, fecha_ingreso):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        # 1. Registramos el lote (asume estado Verde por defecto)
-        cursor.execute(
-            """INSERT INTO Lote (id_producto, cantidad_inicial, cantidad_actual, fecha_ingreso) 
-               VALUES (?, ?, ?, ?)""",
-            (id_producto, cantidad, cantidad, fecha_ingreso)
-        )
+        cursor.execute("INSERT INTO Lote (id_producto, cantidad_inicial, cantidad_actual, fecha_ingreso) VALUES (?, ?, ?, ?)", (id_producto, cantidad, cantidad, fecha_ingreso))
         id_lote = cursor.lastrowid
-        
-        # 2. Registramos el movimiento de entrada para el historial
-        cursor.execute(
-            "INSERT INTO Movimiento (id_lote, tipo_movimiento, cantidad) VALUES (?, 'Entrada', ?)",
-            (id_lote, cantidad)
-        )
+        cursor.execute("INSERT INTO Movimiento (id_lote, tipo_movimiento, cantidad) VALUES (?, 'Entrada', ?)", (id_lote, cantidad))
         conn.commit()
         return id_lote
     finally:
@@ -189,6 +204,24 @@ def obtener_inventario():
             JOIN Producto p ON l.id_producto = p.id_producto
             JOIN Categoria c ON p.id_categoria = c.id_categoria
             WHERE l.cantidad_actual > 0
+            ORDER BY l.fecha_ingreso ASC
+        """)
+        return [dict(row) for row in cursor.fetchall()]
+    finally:
+        conn.close()
+
+def obtener_resumen_general():
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT p.id_producto, p.nombre AS producto, c.nombre AS categoria, 
+                   SUM(l.cantidad_actual) AS stock_total
+            FROM Lote l
+            JOIN Producto p ON l.id_producto = p.id_producto
+            JOIN Categoria c ON p.id_categoria = c.id_categoria
+            WHERE l.cantidad_actual > 0 AND l.estado_semaforo != 'Negro'
+            GROUP BY p.id_producto
         """)
         return [dict(row) for row in cursor.fetchall()]
     finally:
@@ -198,7 +231,6 @@ def registrar_salida(id_producto, cantidad_requerida):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        # Seleccionar lotes con stock, ordenados por el más viejo (FEFO) que no estén caducados (Negro)
         cursor.execute("""
             SELECT id_lote, cantidad_actual 
             FROM Lote 
@@ -206,29 +238,25 @@ def registrar_salida(id_producto, cantidad_requerida):
             ORDER BY fecha_ingreso ASC
         """, (id_producto,))
         lotes = cursor.fetchall()
-
         cantidad_restante = float(cantidad_requerida)
         
         for lote in lotes:
             if cantidad_restante <= 0:
                 break
-                
             id_lote = lote['id_lote']
             disponible = lote['cantidad_actual']
             
             if disponible <= cantidad_restante:
-                # Nos acabamos este lote completo
                 cursor.execute("UPDATE Lote SET cantidad_actual = 0 WHERE id_lote = ?", (id_lote,))
                 cursor.execute("INSERT INTO Movimiento (id_lote, tipo_movimiento, cantidad) VALUES (?, 'Salida', ?)", (id_lote, disponible))
                 cantidad_restante -= disponible
             else:
-                # Tomamos solo una parte de este lote
                 nueva_cantidad = disponible - cantidad_restante
                 cursor.execute("UPDATE Lote SET cantidad_actual = ? WHERE id_lote = ?", (nueva_cantidad, id_lote))
                 cursor.execute("INSERT INTO Movimiento (id_lote, tipo_movimiento, cantidad) VALUES (?, 'Salida', ?)", (id_lote, cantidad_restante))
                 cantidad_restante = 0
 
         conn.commit()
-        return cantidad_requerida - cantidad_restante # Devuelve la cantidad que sí se pudo despachar
+        return cantidad_requerida - cantidad_restante
     finally:
         conn.close()
