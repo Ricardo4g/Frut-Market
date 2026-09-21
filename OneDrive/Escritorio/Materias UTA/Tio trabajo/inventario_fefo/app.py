@@ -1,41 +1,77 @@
-from flask import Flask, request, jsonify, render_template
+import os
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from database import (inicializar_base_datos, inicializar_superusuario, login, 
                       actualizar_semaforo, crear_categoria, actualizar_categoria, eliminar_categoria,
                       crear_producto, eliminar_producto, crear_lote, obtener_inventario, 
                       obtener_resumen_general, registrar_salida, get_db_connection)
-from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
+# Llave secreta para cifrar las cookies de sesión
+app.secret_key = os.environ.get('SECRET_KEY', 'frutmarket_secret_key_ultra_segura_2026')
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(actualizar_semaforo, 'cron', hour=0, minute=0)
-scheduler.start()
+# Inicializar tablas y superusuario predeterminado
+inicializar_base_datos()
+inicializar_superusuario()
+
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(actualizar_semaforo, 'cron', hour=0, minute=0)
+    scheduler.start()
+except Exception:
+    pass
+
+# Helper para proteger endpoints de la API
+def verificar_autenticacion():
+    return 'usuario' in session
 
 @app.route('/')
 def inicio():
     return render_template('index.html')
 
+# Endpoint de autenticación
 @app.route('/api/login', methods=['POST'])
 def api_login():
     datos = request.get_json()
     if not datos or 'username' not in datos or 'password' not in datos:
-        return jsonify({"error": "Faltan credenciales"}), 400
+        return jsonify({"error": "Ingresa usuario y contraseña"}), 400
+    
     usuario = login(datos['username'], datos['password'])
     if usuario:
         del usuario['password_hash']
-        return jsonify({"mensaje": "Login exitoso", "usuario": usuario}), 200
-    return jsonify({"error": "Credenciales inválidas"}), 401
+        session['usuario'] = usuario['username']
+        session['rol'] = usuario['rol']
+        return jsonify({"mensaje": "Bienvenido a Frut Market", "usuario": usuario}), 200
+    return jsonify({"error": "Credenciales inválidas. Acceso denegado."}), 401
 
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.clear()
+    return jsonify({"mensaje": "Sesión cerrada correctamente"}), 200
+
+@app.route('/api/check_session', methods=['GET'])
+def api_check_session():
+    if verificar_autenticacion():
+        return jsonify({"autenticado": True, "usuario": session.get('usuario')}), 200
+    return jsonify({"autenticado": False}), 200
+
+# Endpoints protegidos
 @app.route('/api/inventario', methods=['GET'])
 def api_obtener_inventario():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     return jsonify({"inventario": obtener_inventario()}), 200
 
 @app.route('/api/resumen_general', methods=['GET'])
 def api_resumen_general():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     return jsonify({"resumen": obtener_resumen_general()}), 200
 
 @app.route('/api/categorias', methods=['GET'])
 def api_lista_categorias():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     cats = conn.execute("SELECT * FROM Categoria").fetchall()
     conn.close()
@@ -43,6 +79,8 @@ def api_lista_categorias():
 
 @app.route('/api/categorias', methods=['POST'])
 def api_crear_categoria():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('dias_vida_util'):
         return jsonify({"error": "Faltan campos"}), 400
@@ -51,6 +89,8 @@ def api_crear_categoria():
 
 @app.route('/api/categorias/<int:id_cat>', methods=['PUT', 'DELETE'])
 def api_manejar_categoria(id_cat):
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     if request.method == 'PUT':
         datos = request.get_json()
         actualizar_categoria(id_cat, datos['nombre'], datos['dias_vida_util'])
@@ -61,6 +101,8 @@ def api_manejar_categoria(id_cat):
 
 @app.route('/api/productos', methods=['GET'])
 def api_lista_productos():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     prods = conn.execute("""
         SELECT p.id_producto, p.nombre, p.id_categoria, c.nombre AS categoria 
@@ -72,6 +114,8 @@ def api_lista_productos():
 
 @app.route('/api/productos', methods=['POST'])
 def api_crear_producto():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('id_categoria'):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
@@ -80,11 +124,15 @@ def api_crear_producto():
 
 @app.route('/api/productos/<int:id_prod>', methods=['DELETE'])
 def api_eliminar_producto(id_prod):
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     eliminar_producto(id_prod)
     return jsonify({"mensaje": "Producto eliminado"}), 200
 
 @app.route('/api/lotes', methods=['POST'])
 def api_crear_lote():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('id_producto') or not datos.get('cantidad') or not datos.get('fecha_ingreso'):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
@@ -93,6 +141,8 @@ def api_crear_lote():
 
 @app.route('/api/salidas', methods=['POST'])
 def api_registrar_salida():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('id_producto') or not datos.get('cantidad'):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
@@ -103,6 +153,8 @@ def api_registrar_salida():
 
 @app.route('/api/fundaciones', methods=['GET', 'POST'])
 def api_fundaciones():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     try:
         if request.method == 'POST':
@@ -125,6 +177,8 @@ def api_fundaciones():
 
 @app.route('/api/fundaciones/<int:id_fundacion>', methods=['PUT', 'DELETE'])
 def api_manejar_fundacion(id_fundacion):
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     try:
         if request.method == 'DELETE':
@@ -151,10 +205,10 @@ def api_manejar_fundacion(id_fundacion):
 
 @app.route('/api/forzar_semaforo', methods=['POST'])
 def api_forzar_semaforo():
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
     actualizar_semaforo()
     return jsonify({"mensaje": "Semáforo actualizado"}), 200
 
 if __name__ == '__main__':
-    inicializar_base_datos()
-    inicializar_superusuario()
     app.run(debug=True, port=5000)

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frut Market ✨ Frescura Inteligente</title>
-    <!-- Favicon con Logo Oficial -->
+    <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='logo.jpeg') }}">
-    <!-- Fuente Redondita y Amigable: Quicksand -->
+    <!-- Fuente Quicksand -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
@@ -34,9 +34,34 @@
             color: var(--text-main);
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
+            min-height: 100vh;
         }
 
+        /* OVERLAY DE LOGIN BLOQUEANTE */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(253, 250, 247, 0.96);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.2rem;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border: 2px solid var(--border-soft);
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 40px -10px rgba(254, 215, 202, 0.6);
+            text-align: center;
+        }
+
+        /* LAYOUT PRINCIPAL RESPONSIVO */
         .cute-layout {
             display: flex;
             min-height: 100vh;
@@ -44,7 +69,7 @@
         }
 
         .cute-sidebar {
-            width: 290px;
+            width: 270px;
             background-color: var(--sidebar-bg);
             border-right: 2px solid var(--border-soft);
             display: flex;
@@ -60,31 +85,26 @@
         .brand-cute {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding-bottom: 1.5rem;
-            margin-bottom: 1.5rem;
+            gap: 12px;
+            padding-bottom: 1.2rem;
+            margin-bottom: 1.2rem;
             border-bottom: 2px dashed #fed7ca;
         }
 
         .brand-logo-img {
-            width: 60px;
-            height: 60px;
-            border-radius: 18px;
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
             object-fit: cover;
-            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.22);
+            box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2);
             border: 2px solid #ffffff;
             background: #ffffff;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .brand-logo-img:hover {
-            transform: scale(1.06) rotate(3deg);
         }
 
         .cute-nav {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             flex: 1;
         }
 
@@ -92,7 +112,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 0.9rem 1.1rem;
+            padding: 0.85rem 1.1rem;
             border-radius: 20px;
             color: #6b7280;
             font-weight: 700;
@@ -102,13 +122,14 @@
             transition: all 0.25s ease;
             background: transparent;
             border: none;
+            text-align: left;
+            width: 100%;
         }
 
         .cute-nav-btn i {
-            font-size: 1.2rem;
-            width: 24px;
+            font-size: 1.15rem;
+            width: 22px;
             text-align: center;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .cute-nav-btn:hover {
@@ -117,87 +138,84 @@
             transform: translateX(4px);
         }
 
-        .cute-nav-btn:hover i { transform: scale(1.18); }
-
         .cute-nav-btn.active {
             background: #ffffff;
             color: #f43f5e;
-            box-shadow: 0 8px 20px -3px rgba(255, 133, 162, 0.25);
+            box-shadow: 0 6px 18px -3px rgba(255, 133, 162, 0.25);
         }
 
         .cute-main {
             flex: 1;
-            padding: 2.2rem 3rem;
-            max-width: 1500px;
+            padding: 2rem 2.5rem;
+            max-width: 1400px;
             margin: 0 auto;
-            width: calc(100% - 290px);
+            width: calc(100% - 270px);
         }
 
         .cute-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
             margin-bottom: 2rem;
         }
 
         .marshmallow-card {
             background: var(--card-surface);
             border: 2px solid var(--border-soft);
-            border-radius: 28px;
+            border-radius: 26px;
             padding: 1.8rem;
-            box-shadow: 0 10px 30px -5px rgba(254, 215, 202, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(254, 215, 202, 0.4);
         }
 
         .view-panel {
             display: none;
-            animation: softPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: softPop 0.25s ease;
         }
 
         .view-panel.active { display: block; }
 
         @keyframes softPop {
-            from { opacity: 0; transform: scale(0.985) translateY(4px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .cute-table-box {
             background: #ffffff;
             border: 2px solid var(--border-soft);
-            border-radius: 26px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px -5px rgba(254, 215, 202, 0.4);
+            border-radius: 24px;
+            overflow-x: auto;
+            box-shadow: 0 8px 24px -5px rgba(254, 215, 202, 0.35);
         }
-
-        .table { margin-bottom: 0; }
 
         .table thead th {
             background: #fff8f5;
             color: #9ca3af;
             font-weight: 700;
             font-size: 0.85rem;
-            letter-spacing: 0.03em;
-            padding: 1.2rem 1.4rem;
+            padding: 1rem 1.2rem;
             border-bottom: 2px solid var(--border-soft);
+            white-space: nowrap;
         }
 
         .table tbody td {
-            padding: 1.25rem 1.4rem;
+            padding: 1.1rem 1.2rem;
             border-bottom: 1px solid #fff1ec;
             vertical-align: middle;
             font-weight: 600;
             font-size: 0.95rem;
+            white-space: nowrap;
         }
-
-        .table-hover tbody tr:hover { background-color: #fff9f7; }
 
         .gummy-badge {
             font-size: 0.82rem;
             font-weight: 700;
-            padding: 7px 16px;
-            border-radius: 25px;
+            padding: 6px 14px;
+            border-radius: 20px;
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
         }
 
         .gummy-optimo { background: #dcfce7; color: #15803d; border: 1.5px solid #bbf7d0; }
@@ -205,22 +223,13 @@
         .gummy-rojo { background: #ffe4e6; color: #e11d48; border: 1.5px solid #fecdd3; }
         .gummy-negro { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; }
 
-        .form-label {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #4b5563;
-            margin-bottom: 0.5rem;
-        }
-
         .form-control, .form-select {
             border: 2px solid #fed7ca;
-            border-radius: 18px;
-            padding: 0.85rem 1.2rem;
+            border-radius: 16px;
+            padding: 0.8rem 1.1rem;
             font-size: 0.95rem;
             font-weight: 600;
             background-color: #fffdfc;
-            color: var(--text-main);
-            transition: all 0.2s ease;
         }
 
         .form-control:focus, .form-select:focus {
@@ -234,69 +243,54 @@
             background: linear-gradient(135deg, #ff85a2, #f43f5e);
             color: white;
             border: none;
-            border-radius: 20px;
-            padding: 0.95rem 1.6rem;
+            border-radius: 18px;
+            padding: 0.85rem 1.5rem;
             font-weight: 700;
-            font-size: 0.98rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 8px 18px rgba(244, 63, 94, 0.3);
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 16px rgba(244, 63, 94, 0.28);
+            transition: transform 0.2s;
         }
-        .btn-cute-pink:hover {
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 12px 24px rgba(244, 63, 94, 0.4);
-        }
+        .btn-cute-pink:hover { transform: translateY(-2px); color: white; }
 
         .btn-cute-mint {
             background: linear-gradient(135deg, #34d399, #10b981);
             color: white;
             border: none;
-            border-radius: 20px;
-            padding: 0.95rem 1.6rem;
+            border-radius: 18px;
+            padding: 0.85rem 1.5rem;
             font-weight: 700;
-            font-size: 0.98rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.25);
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+            transition: transform 0.2s;
         }
-        .btn-cute-mint:hover {
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.35);
-        }
+        .btn-cute-mint:hover { transform: translateY(-2px); color: white; }
 
         .btn-cute-peach {
             background: linear-gradient(135deg, #fb923c, #f97316);
             color: white;
             border: none;
-            border-radius: 20px;
-            padding: 0.95rem 1.6rem;
+            border-radius: 18px;
+            padding: 0.85rem 1.5rem;
             font-weight: 700;
-            font-size: 0.98rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 8px 18px rgba(249, 115, 22, 0.25);
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.25);
+            transition: transform 0.2s;
         }
-        .btn-cute-peach:hover {
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 12px 24px rgba(249, 115, 22, 0.35);
-        }
+        .btn-cute-peach:hover { transform: translateY(-2px); color: white; }
 
         .cute-icon-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 14px;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
             border: 1.5px solid #fed7ca;
             background: #ffffff;
             color: #9ca3af;
@@ -304,37 +298,91 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .cute-icon-btn:hover {
-            background: #fff1ec;
-            color: #e11d48;
-            transform: scale(1.08);
         }
 
-        @media (max-width: 992px) {
-            .cute-sidebar { width: 85px; padding: 1.5rem 0.6rem; align-items: center; }
-            .brand-cute span, .brand-cute div, .cute-nav-btn span { display: none; }
-            .brand-cute { justify-content: center; padding-bottom: 1.2rem; }
-            .cute-nav-btn { justify-content: center; padding: 0.9rem; }
-            .cute-main { width: calc(100% - 85px); padding: 1.5rem; }
+        /* ADAPTATIVO: MÓVILES Y PANTALLAS PEQUEÑAS */
+        @media (max-width: 991px) {
+            .cute-layout {
+                flex-direction: column;
+            }
+            .cute-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
+                border-right: none;
+                border-bottom: 2px solid var(--border-soft);
+            }
+            .brand-cute {
+                padding-bottom: 0.8rem;
+                margin-bottom: 0.8rem;
+            }
+            .cute-nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 6px;
+                gap: 6px;
+            }
+            .cute-nav-btn {
+                padding: 0.6rem 0.9rem;
+                white-space: nowrap;
+                font-size: 0.85rem;
+                flex-shrink: 0;
+                width: auto;
+            }
+            .cute-main {
+                width: 100%;
+                padding: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- OVERLAY DE INICIO DE SESIÓN SEGURO -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" 
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';"
+                 alt="Logo" class="brand-logo-img mb-3" style="width: 70px; height: 70px;">
+            <h3 class="h5 fw-bold mb-1 text-dark">Acceso Restringido 🔒</h3>
+            <p class="text-muted small mb-4">Ingresa tus credenciales autorizadas de Frut Market.</p>
+            
+            <div id="login-error" class="alert alert-danger py-2 small d-none rounded-3"></div>
+
+            <div class="mb-3 text-start">
+                <label class="form-label small fw-bold">Usuario</label>
+                <input type="text" id="login-user" class="form-control" placeholder="admin" autofocus>
+            </div>
+            <div class="mb-4 text-start">
+                <label class="form-label small fw-bold">Contraseña</label>
+                <input type="password" id="login-pass" class="form-control" placeholder="••••••••">
+            </div>
+
+            <button class="btn-cute-pink w-100 py-3" onclick="ejecutarLogin()">
+                Iniciar Sesión Segura ✨
+            </button>
+            
+            <div class="mt-4 pt-3 border-top border-soft">
+                <small class="text-muted" style="font-size: 0.75rem;">🛡️ Sistema Protegido — Acceso solo a personal</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL -->
     <div class="cute-layout">
 
-        <!-- Barra Lateral con Logo Oficial -->
+        <!-- Barra Lateral / Barra de Menú -->
         <aside class="cute-sidebar">
-            <div class="brand-cute">
-                <img src="{{ url_for('static', filename='logo.jpeg') }}" 
-                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';"
-                     alt="Frut Market" 
-                     class="brand-logo-img">
-                <div>
-                    <h1 class="h6 fw-bold mb-0 text-dark" style="letter-spacing: -0.02em;">Frut Market</h1>
-                    <small class="text-success fw-bold" style="font-size: 0.72rem;">Frescura Inteligente ✨</small>
+            <div class="brand-cute justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ url_for('static', filename='logo.jpeg') }}" 
+                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';"
+                         alt="Frut Market" class="brand-logo-img">
+                    <div>
+                        <h1 class="h6 fw-bold mb-0 text-dark">Frut Market</h1>
+                        <small class="text-success fw-bold" style="font-size: 0.72rem;">Frescura Inteligente ✨</small>
+                    </div>
                 </div>
             </div>
 
@@ -345,7 +393,7 @@
                 </button>
                 <button class="cute-nav-btn" id="btn-nav-inventario" onclick="navegar('inventario')">
                     <i class="fa-solid fa-layer-group text-primary"></i>
-                    <span>Lotes</span>
+                    <span>Lotes (FEFO)</span>
                 </button>
                 <button class="cute-nav-btn" id="btn-nav-ingreso" onclick="navegar('ingreso')">
                     <i class="fa-solid fa-circle-plus text-success"></i>
@@ -357,7 +405,7 @@
                 </button>
                 <button class="cute-nav-btn" id="btn-nav-merma" onclick="navegar('merma')">
                     <i class="fa-solid fa-recycle text-info"></i>
-                    <span>Merma & Desperdicio</span>
+                    <span>Merma & Eco</span>
                 </button>
                 <button class="cute-nav-btn" id="btn-nav-config" onclick="navegar('config')">
                     <i class="fa-solid fa-sliders text-secondary"></i>
@@ -365,14 +413,15 @@
                 </button>
             </nav>
 
-            <div class="pt-3 border-top border-2 border-dashed border-danger border-opacity-25 mt-auto">
-                <div class="d-flex align-items-center gap-2 px-2 text-muted fw-bold small">
-                    <span>🌱 Almacén Activo</span>
-                </div>
+            <div class="pt-3 border-top border-2 border-dashed border-danger border-opacity-25 mt-auto d-flex justify-content-between align-items-center">
+                <span class="small text-muted fw-bold" id="label-usuario-activo">👤 admin</span>
+                <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" onclick="cerrarSesion()">
+                    Salir
+                </button>
             </div>
         </aside>
 
-        <!-- Escenario de Trabajo Principal -->
+        <!-- Contenido Central Dinámico -->
         <main class="cute-main">
             
             <div class="cute-header">
@@ -380,8 +429,8 @@
                     <h2 class="h4 fw-bold mb-1 text-dark" id="stage-title">Stock General de Frutas & Alimentos 🧺</h2>
                     <p class="text-muted fw-semibold small mb-0" id="stage-desc">Existencias consolidadas y listas para reparto</p>
                 </div>
-                <button class="btn btn-white border-2 border-light-subtle shadow-sm rounded-pill px-4 py-2 fw-bold text-dark bg-white" onclick="forzarSemaforo()">
-                    🔄 Recalcular Inventario
+                <button class="btn btn-white border-2 border-light-subtle shadow-sm rounded-pill px-3 py-2 fw-bold text-dark bg-white" onclick="forzarSemaforo()">
+                    🔄 Recalcular Semáforo
                 </button>
             </div>
 
@@ -402,7 +451,7 @@
                 </div>
             </section>
 
-            <!-- 2. LOTES DETALLADOS FEFO -->
+            <!-- 2. LOTES FEFO -->
             <section id="view-inventario" class="view-panel">
                 <div class="cute-table-box">
                     <table class="table table-hover align-middle">
@@ -413,7 +462,7 @@
                                 <th>Categoría</th>
                                 <th>Fecha de Ingreso</th>
                                 <th>Cantidad</th>
-                                <th class="pe-4 text-end">Semáforo </th>
+                                <th class="pe-4 text-end">Semáforo FEFO</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-inventario"></tbody>
@@ -427,25 +476,25 @@
                     <div class="col-xl-6 col-lg-8">
                         <div class="marshmallow-card">
                             <div class="d-flex align-items-center gap-3 mb-4">
-                                <div style="font-size: 2.2rem;">📦</div>
+                                <div style="font-size: 2rem;">📦</div>
                                 <div>
                                     <h3 class="h5 fw-bold mb-1 text-dark">Registrar Entrada de Lote</h3>
-                                    <p class="text-muted small fw-semibold mb-0">Agrega nueva mercancía recién recibida.</p>
+                                    <p class="text-muted small fw-semibold mb-0">Agrega mercancía que acaba de llegar al almacén.</p>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">¿Qué producto llegó?</label>
+                                <label class="form-label small fw-bold">Producto recibido</label>
                                 <select id="select-producto-ingreso" class="form-select"></select>
                             </div>
 
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label">Cantidad de piezas / unidades</label>
-                                    <input type="number" id="ingreso-cantidad" class="form-control" placeholder="">
+                                    <label class="form-label small fw-bold">Cantidad de unidades</label>
+                                    <input type="number" id="ingreso-cantidad" class="form-control" placeholder="Ej. 100">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Fecha de llegada</label>
+                                    <label class="form-label small fw-bold">Fecha de llegada</label>
                                     <input type="date" id="ingreso-fecha" class="form-control">
                                 </div>
                             </div>
@@ -464,85 +513,67 @@
                     <div class="col-xl-6 col-lg-8">
                         <div class="marshmallow-card">
                             <div class="d-flex align-items-center gap-3 mb-4">
-                                <div style="font-size: 2.2rem;">🚛</div>
+                                <div style="font-size: 2rem;">🚛</div>
                                 <div>
-                                    <h3 class="h5 fw-bold mb-1 text-dark">Despacho Automático</h3>
-                                    <p class="text-muted small fw-semibold mb-0">El sistema tomará automáticamente los lotes más viejos para evitar pérdidas.</p>
+                                    <h3 class="h5 fw-bold mb-1 text-dark">Despacho Automático FEFO</h3>
+                                    <p class="text-muted small fw-semibold mb-0">Descuenta automáticamente los lotes más viejos para evitar mermas.</p>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Producto a entregar</label>
+                                <label class="form-label small fw-bold">Producto a despachar</label>
                                 <select id="select-producto-salida" class="form-select"></select>
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label">Cantidad requerida</label>
-                                <input type="number" id="salida-cantidad" class="form-control" placeholder="">
+                                <label class="form-label small fw-bold">Cantidad requerida</label>
+                                <input type="number" id="salida-cantidad" class="form-control" placeholder="Ej. 30">
                             </div>
 
                             <button class="btn-cute-peach w-100 py-3" onclick="despacharFácil()">
-                                 Procesar Salida
+                                🚀 Procesar Salida
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 5. MERMA & ECONOMÍA CIRCULAR -->
+            <!-- 5. MERMA Y ALIADOS -->
             <section id="view-merma" class="view-panel">
                 <div class="row g-4">
                     <div class="col-xl-4 col-lg-5">
                         <div class="marshmallow-card">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div style="font-size: 2rem;">🌱</div>
-                                <div>
-                                    <h3 class="h6 fw-bold mb-0 text-dark">Destino de Merma</h3>
-                                    <small class="text-muted fw-semibold">Composta, ganado o donación</small>
-                                </div>
-                            </div>
-
+                            <h3 class="h6 fw-bold mb-3 text-dark">🌱 Nuevo Aliado / Destino</h3>
                             <div class="mb-3">
-                                <label class="form-label">Nombre del Aliado / Comprador</label>
-                                <input type="text" id="merma-nombre" class="form-control" placeholder="">
+                                <label class="form-label small fw-bold">Nombre del Aliado</label>
+                                <input type="text" id="merma-nombre" class="form-control" placeholder="Ej. Huerto Orgánico">
                             </div>
-
                             <div class="mb-3">
-                                <label class="form-label">Tipo de Destino</label>
+                                <label class="form-label small fw-bold">Tipo</label>
                                 <select id="merma-tipo" class="form-select">
-                                    <option value="Beneficencia">Banco de Alimentos / Beneficencia</option>
-                                    <option value="Venta Rebajada">Venta de Oportunidad / Liquidación</option>
-                                    <option value="Reciclaje / Composta">Reciclaje / Abono / Composta</option>
-                                    <option value="Ganadería">Alimento para Ganado</option>
+                                    <option value="Beneficencia">Beneficencia / Donación</option>
+                                    <option value="Venta Rebajada">Venta Oportunidad</option>
+                                    <option value="Reciclaje / Composta">Composta / Abono</option>
+                                    <option value="Ganadería">Ganadería</option>
                                 </select>
                             </div>
-
                             <div class="mb-3">
-                                <label class="form-label">WhatsApp de Contacto</label>
-                                <input type="text" id="merma-wsp" class="form-control" placeholder="">
+                                <label class="form-label small fw-bold">WhatsApp</label>
+                                <input type="text" id="merma-wsp" class="form-control" placeholder="Ej. 524491234567">
                             </div>
-
                             <div class="mb-4">
-                                <label class="form-label">Notas o Condiciones</label>
-                                <textarea id="merma-desc" class="form-control" rows="2" placeholder=""></textarea>
+                                <label class="form-label small fw-bold">Notas</label>
+                                <textarea id="merma-desc" class="form-control" rows="2"></textarea>
                             </div>
-
-                            <button class="btn-cute-pink w-100" onclick="guardarFundacion()">
-                                Guardar Colaborador
-                            </button>
+                            <button class="btn-cute-pink w-100" onclick="guardarFundacion()">💖 Guardar Aliado</button>
                         </div>
                     </div>
-
                     <div class="col-xl-8 col-lg-7">
                         <div class="cute-table-box">
-                            <div class="p-3 border-bottom border-soft bg-white d-flex justify-content-between align-items-center">
-                                <h4 class="h6 fw-bold mb-0 text-dark">Directorio de Colaboradores Registrados 🌿</h4>
-                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2">Cero Desperdicio</span>
-                            </div>
                             <table class="table table-hover align-middle">
                                 <thead>
                                     <tr>
-                                        <th class="ps-4">Colaborador</th>
+                                        <th class="ps-4">Aliado</th>
                                         <th>Tipo</th>
                                         <th>WhatsApp</th>
                                         <th class="pe-4 text-end">Acciones</th>
@@ -560,25 +591,22 @@
                 <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="marshmallow-card">
-                            <h3 class="h6 fw-bold mb-3 text-dark">🏷️ Categorías de Productos</h3>
+                            <h3 class="h6 fw-bold mb-3 text-dark">🏷️ Categorías</h3>
                             <div class="d-flex gap-2 mb-3">
-                                <input type="text" id="cat-nombre" class="form-control" placeholder="Nombre ()">
-                                <input type="number" id="cat-dias" class="form-control" style="max-width: 140px;" placeholder="Días vida">
+                                <input type="text" id="cat-nombre" class="form-control" placeholder="Nombre">
+                                <input type="number" id="cat-dias" class="form-control" style="max-width: 120px;" placeholder="Días">
                                 <button class="btn-cute-pink px-4" onclick="crearCategoriaFácil()">Crear</button>
                             </div>
                             <ul id="lista-categorias-admin" class="list-group list-group-flush border rounded-4 small"></ul>
                         </div>
                     </div>
-
                     <div class="col-lg-6">
                         <div class="marshmallow-card">
                             <h3 class="h6 fw-bold mb-3 text-dark">🍎 Catálogo de Productos</h3>
-                            <div class="mb-3">
-                                <input type="text" id="prod-nombre" class="form-control mb-2" placeholder="Nombre del producto">
-                                <select id="select-cat-producto" class="form-select mb-3"></select>
-                                <button class="btn-cute-pink w-100" onclick="crearProductoFácil()">Registrar Producto</button>
-                            </div>
-                            <ul id="lista-productos-admin" class="list-group list-group-flush border rounded-4 small mt-3"></ul>
+                            <input type="text" id="prod-nombre" class="form-control mb-2" placeholder="Nombre">
+                            <select id="select-cat-producto" class="form-select mb-3"></select>
+                            <button class="btn-cute-pink w-100 mb-3" onclick="crearProductoFácil()">Registrar Producto</button>
+                            <ul id="lista-productos-admin" class="list-group list-group-flush border rounded-4 small"></ul>
                         </div>
                     </div>
                 </div>
@@ -592,34 +620,33 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow-lg p-3">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title h6 fw-bold text-dark">Editar Colaborador de Merma ✏️</h5>
+                    <h5 class="modal-title h6 fw-bold text-dark">Editar Aliado ✏️</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="edit-fund-id">
                     <div class="mb-3">
-                        <label class="form-label">Nombre</label>
+                        <label class="form-label small fw-bold">Nombre</label>
                         <input type="text" id="edit-fund-nombre" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Tipo de Destino</label>
+                        <label class="form-label small fw-bold">Tipo</label>
                         <select id="edit-fund-tipo" class="form-select">
-                            <option value="Beneficencia">Banco de Alimentos / Beneficencia</option>
-                            <option value="Venta Rebajada">Venta de Oportunidad / Liquidación</option>
-                            <option value="Reciclaje / Composta">Reciclaje / Abono / Composta</option>
-                            <option value="Ganadería">Alimento para Ganado</option>
+                            <option value="Beneficencia">Beneficencia</option>
+                            <option value="Venta Rebajada">Venta Rebajada</option>
+                            <option value="Reciclaje / Composta">Composta</option>
+                            <option value="Ganadería">Ganadería</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">WhatsApp</label>
+                        <label class="form-label small fw-bold">WhatsApp</label>
                         <input type="text" id="edit-fund-wsp" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Notas o Requisitos</label>
+                        <label class="form-label small fw-bold">Notas</label>
                         <textarea id="edit-fund-desc" class="form-control" rows="2"></textarea>
                     </div>
-                    
-                    <button type="button" class="btn-cute-pink w-100 mt-2" onclick="guardarEdicionFundacion()">Guardar Cambios</button>
+                    <button type="button" class="btn-cute-pink w-100" onclick="guardarEdicionFundacion()">Guardar Cambios</button>
                 </div>
             </div>
         </div>
@@ -633,24 +660,70 @@
 
         const titulos = {
             'resumen': { t: 'Stock General de Frutas & Alimentos 🧺', d: 'Existencias consolidadas y listas para reparto' },
-            'inventario': { t: 'Lotes Detallados 📋', d: 'Ordenados por caducidad para prevenir mermas' },
+            'inventario': { t: 'Lotes Detallados FEFO 📋', d: 'Ordenados por caducidad para prevenir mermas' },
             'ingreso': { t: 'Entrada de Mercancía Nueva 📦', d: 'Registra lotes y programa su vida útil' },
-            'salida': { t: 'Despacho Rápido 🚛', d: 'Descuento inteligente por lote más antiguo' },
+            'salida': { t: 'Despacho Rápido FEFO 🚛', d: 'Descuento inteligente por lote más antiguo' },
             'merma': { t: 'Gestión de Merma & Economía Circular 🌱', d: 'Alianzas con bancos de alimentos, composta y ganado' },
             'config': { t: 'Catálogo de Productos & Categorías 🏷️', d: 'Configura tus productos y días de vida útil' }
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const fechaInput = document.getElementById('ingreso-fecha');
-            if (fechaInput) {
-                fechaInput.value = new Date().toISOString().split('T')[0];
-            }
+            if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
+            
             const modalEl = document.getElementById('modalEditarFundacion');
-            if (modalEl) {
-                modalEdicionInstancia = new bootstrap.Modal(modalEl);
+            if (modalEl) modalEdicionInstancia = new bootstrap.Modal(modalEl);
+
+            // Verificar si ya existe sesión activa
+            const res = await fetch('/api/check_session');
+            const data = await res.json();
+            if (data.autenticado) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('label-usuario-activo').innerText = '👤 ' + data.usuario;
+                navegar('resumen');
+            } else {
+                document.getElementById('login-overlay').style.display = 'flex';
             }
-            navegar('resumen');
         });
+
+        async function ejecutarLogin() {
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value;
+            const errDiv = document.getElementById('login-error');
+            errDiv.classList.add('d-none');
+
+            if (!user || !pass) {
+                errDiv.innerText = "Por favor ingresa usuario y contraseña.";
+                errDiv.classList.remove('d-none');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('label-usuario-activo').innerText = '👤 ' + data.usuario.username;
+                    navegar('resumen');
+                } else {
+                    errDiv.innerText = data.error || "Credenciales inválidas";
+                    errDiv.classList.remove('d-none');
+                }
+            } catch (e) {
+                errDiv.innerText = "Error de conexión con el servidor.";
+                errDiv.classList.remove('d-none');
+            }
+        }
+
+        async function cerrarSesion() {
+            await fetch('/api/logout', { method: 'POST' });
+            location.reload();
+        }
 
         function navegar(seccion) {
             document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
@@ -676,12 +749,13 @@
         async function cargarResumenGeneral() {
             try {
                 const res = await fetch('/api/resumen_general');
+                if (res.status === 401) { location.reload(); return; }
                 const data = await res.json();
                 const tabla = document.getElementById('tabla-resumen');
                 tabla.innerHTML = '';
 
                 if (!data.resumen || data.resumen.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🧺 No hay mercancía registrada con stock disponible.</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🧺 No hay existencias registradas.</td></tr>`;
                     return;
                 }
 
@@ -695,27 +769,25 @@
                         </tr>
                     `;
                 });
-            } catch (err) {
-                console.error("Error al cargar resumen:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function cargarInventario() {
             try {
                 const res = await fetch('/api/inventario');
+                if (res.status === 401) { location.reload(); return; }
                 const data = await res.json();
                 const tabla = document.getElementById('tabla-inventario');
                 tabla.innerHTML = '';
 
                 if (!data.inventario || data.inventario.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-bold">📦 No hay lotes activos por el momento.</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-bold">📦 No hay lotes registrados por el momento.</td></tr>`;
                     return;
                 }
 
                 data.inventario.forEach(item => {
                     let badgeClass = 'gummy-optimo';
                     let label = 'Óptimo';
-
                     if (item.estado_semaforo === 'Amarillo') { badgeClass = 'gummy-amarillo'; label = 'Próximo a Vencer'; }
                     if (item.estado_semaforo === 'Rojo') { badgeClass = 'gummy-rojo'; label = 'Crítico'; }
                     if (item.estado_semaforo === 'Negro') { badgeClass = 'gummy-negro'; label = 'Caducado'; }
@@ -731,9 +803,7 @@
                         </tr>
                     `;
                 });
-            } catch (err) {
-                console.error("Error al cargar inventario:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function cargarSelects() {
@@ -748,11 +818,9 @@
                 const resCat = await fetch('/api/categorias');
                 const cats = await resCat.json();
                 let optsC = '';
-                cats.forEach(c => optsC += `<option value="${c.id_categoria}">${c.nombre} (${c.dias_vida_util} días de vida)</option>`);
+                cats.forEach(c => optsC += `<option value="${c.id_categoria}">${c.nombre} (${c.dias_vida_util} días)</option>`);
                 document.getElementById('select-cat-producto').innerHTML = optsC;
-            } catch (err) {
-                console.error("Error al cargar selects:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function cargarListasAdmin() {
@@ -764,7 +832,7 @@
                     htmlC += `
                         <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft">
                             <span><strong class="text-dark">${c.nombre}</strong> <span class="text-muted small">(${c.dias_vida_util} días)</span></span>
-                            <button class="cute-icon-btn" onclick="eliminarCat(${c.id_categoria})" title="Eliminar"><i class="fa-solid fa-trash-can small"></i></button>
+                            <button class="cute-icon-btn" onclick="eliminarCat(${c.id_categoria})"><i class="fa-solid fa-trash-can small"></i></button>
                         </li>
                     `;
                 });
@@ -778,21 +846,19 @@
                     htmlP += `
                         <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft">
                             <span><strong class="text-dark">${p.nombre}</strong> <span class="text-muted small">(${p.categoria || 'Sin cat'})</span></span>
-                            <button class="cute-icon-btn" onclick="eliminarProd(${p.id_producto})" title="Eliminar"><i class="fa-solid fa-trash-can small"></i></button>
+                            <button class="cute-icon-btn" onclick="eliminarProd(${p.id_producto})"><i class="fa-solid fa-trash-can small"></i></button>
                         </li>
                     `;
                 });
                 document.getElementById('lista-productos-admin').innerHTML = htmlP;
-            } catch (err) {
-                console.error("Error cargando listas admin:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function registrarIngresoFácil() {
             const id_producto = document.getElementById('select-producto-ingreso').value;
             const cantidad = document.getElementById('ingreso-cantidad').value;
             const fecha_ingreso = document.getElementById('ingreso-fecha').value;
-            if (!id_producto || !cantidad) { alert("Completa los datos requeridos ✨"); return; }
+            if (!id_producto || !cantidad) { alert("Completa los datos requeridos"); return; }
 
             const res = await fetch('/api/lotes', {
                 method: 'POST',
@@ -803,15 +869,13 @@
                 alert("¡Lote ingresado con éxito! 🥑");
                 document.getElementById('ingreso-cantidad').value = '';
                 navegar('resumen');
-            } else {
-                alert("Error al registrar el lote.");
             }
         }
 
         async function despacharFácil() {
             const id_producto = document.getElementById('select-producto-salida').value;
             const cantidad = document.getElementById('salida-cantidad').value;
-            if (!id_producto || !cantidad) { alert("Indica producto y cantidad a despachar ✨"); return; }
+            if (!id_producto || !cantidad) { alert("Indica producto y cantidad a despachar"); return; }
 
             const res = await fetch('/api/salidas', {
                 method: 'POST',
@@ -843,7 +907,7 @@
         }
 
         async function eliminarCat(id) {
-            if (confirm("¿Deseas eliminar esta categoría?")) {
+            if (confirm("¿Eliminar categoría?")) {
                 await fetch(`/api/categorias/${id}`, { method: 'DELETE' });
                 cargarListasAdmin();
             }
@@ -863,7 +927,7 @@
         }
 
         async function eliminarProd(id) {
-            if (confirm("¿Deseas eliminar este producto?")) {
+            if (confirm("¿Eliminar producto?")) {
                 await fetch(`/api/productos/${id}`, { method: 'DELETE' });
                 cargarListasAdmin();
             }
@@ -875,7 +939,7 @@
             const contacto_whatsapp = document.getElementById('merma-wsp').value.trim();
             const descripcion = document.getElementById('merma-desc').value.trim();
 
-            if (!nombre) { alert("Escribe el nombre del Colaborador"); return; }
+            if (!nombre) { alert("Escribe el nombre del aliado"); return; }
 
             const res = await fetch('/api/fundaciones', {
                 method: 'POST',
@@ -883,7 +947,7 @@
                 body: JSON.stringify({ nombre, tipo_destino, contacto_whatsapp, descripcion })
             });
             if (res.ok) {
-                alert("¡Colaborador guardado con éxito!");
+                alert("¡Aliado guardado con éxito! 💖");
                 document.getElementById('merma-nombre').value = '';
                 document.getElementById('merma-wsp').value = '';
                 document.getElementById('merma-desc').value = '';
@@ -900,7 +964,7 @@
                 tabla.innerHTML = '';
 
                 if (!data || data.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold"> No hay colaboradores registrados aún.</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🌱 No hay aliados de merma registrados aún.</td></tr>`;
                     return;
                 }
 
@@ -919,27 +983,23 @@
                             <td><span class="badge bg-danger bg-opacity-10 text-danger border px-2 py-1 rounded-pill">${f.tipo_destino}</span></td>
                             <td>${wspBtn}</td>
                             <td class="pe-4 text-end">
-                                <button class="cute-icon-btn me-1" onclick="abrirEditarFundacion(${f.id_fundacion})" title="Editar"><i class="fa-solid fa-pen small"></i></button>
-                                <button class="cute-icon-btn" onclick="eliminarFundacion(${f.id_fundacion})" title="Eliminar"><i class="fa-solid fa-trash-can small"></i></button>
+                                <button class="cute-icon-btn me-1" onclick="abrirEditarFundacion(${f.id_fundacion})"><i class="fa-solid fa-pen small"></i></button>
+                                <button class="cute-icon-btn" onclick="eliminarFundacion(${f.id_fundacion})"><i class="fa-solid fa-trash-can small"></i></button>
                             </td>
                         </tr>
                     `;
                 });
-            } catch (err) {
-                console.error("Error cargando fundaciones:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function abrirEditarFundacion(id) {
             const aliado = listaAliadosCache.find(a => a.id_fundacion === id);
             if (!aliado) return;
-
             document.getElementById('edit-fund-id').value = aliado.id_fundacion;
             document.getElementById('edit-fund-nombre').value = aliado.nombre;
             document.getElementById('edit-fund-tipo').value = aliado.tipo_destino;
             document.getElementById('edit-fund-wsp').value = aliado.contacto_whatsapp || '';
             document.getElementById('edit-fund-desc').value = aliado.descripcion || '';
-
             modalEdicionInstancia.show();
         }
 
@@ -965,7 +1025,7 @@
         }
 
         async function eliminarFundacion(id) {
-            if (confirm("¿Deseas eliminar este aliado del directorio?")) {
+            if (confirm("¿Eliminar aliado?")) {
                 await fetch(`/api/fundaciones/${id}`, { method: 'DELETE' });
                 cargarFundaciones();
             }
