@@ -6,11 +6,9 @@
     <title>Frut Market ✨ Frescura Inteligente</title>
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='logo.jpeg') }}">
-    <!-- Fuente Quicksand -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
@@ -25,315 +23,55 @@
             --text-main: #374151;
             --border-soft: #fcefe8;
         }
-
         * { box-sizing: border-box; }
-
-        body {
-            background-color: var(--cute-bg);
-            font-family: 'Quicksand', sans-serif;
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
+        body { background-color: var(--cute-bg); font-family: 'Quicksand', sans-serif; color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; }
 
         /* OVERLAY DE LOGIN BLOQUEANTE */
-        #login-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(253, 250, 247, 0.96);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.2rem;
-        }
-
-        .login-card {
-            background: #ffffff;
-            border: 2px solid var(--border-soft);
-            border-radius: 28px;
-            padding: 2.5rem 2rem;
-            max-width: 420px;
-            width: 100%;
-            box-shadow: 0 20px 40px -10px rgba(254, 215, 202, 0.6);
-            text-align: center;
-        }
+        #login-overlay { position: fixed; inset: 0; background: rgba(253, 250, 247, 0.96); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1.2rem; }
+        .login-card { background: #ffffff; border: 2px solid var(--border-soft); border-radius: 28px; padding: 2.5rem 2rem; max-width: 420px; width: 100%; box-shadow: 0 20px 40px -10px rgba(254, 215, 202, 0.6); text-align: center; }
 
         /* LAYOUT PRINCIPAL RESPONSIVO */
-        .cute-layout {
-            display: flex;
-            min-height: 100vh;
-            width: 100%;
-        }
+        .cute-layout { display: flex; min-height: 100vh; width: 100%; }
+        .cute-sidebar { width: 270px; background-color: var(--sidebar-bg); border-right: 2px solid var(--border-soft); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; padding: 1.8rem 1.2rem; z-index: 50; }
+        .brand-cute { display: flex; align-items: center; gap: 12px; padding-bottom: 1.2rem; margin-bottom: 1.2rem; border-bottom: 2px dashed #fed7ca; }
+        .brand-logo-img { width: 54px; height: 54px; border-radius: 16px; object-fit: cover; box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2); border: 2px solid #ffffff; background: #ffffff; }
+        .cute-nav { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .cute-nav-btn { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1.1rem; border-radius: 20px; color: #6b7280; font-weight: 700; font-size: 0.95rem; text-decoration: none; cursor: pointer; transition: all 0.25s ease; background: transparent; border: none; text-align: left; width: 100%; }
+        .cute-nav-btn i { font-size: 1.15rem; width: 22px; text-align: center; }
+        .cute-nav-btn:hover { color: #ef4444; background: #ffebe5; transform: translateX(4px); }
+        .cute-nav-btn.active { background: #ffffff; color: #f43f5e; box-shadow: 0 6px 18px -3px rgba(255, 133, 162, 0.25); }
 
-        .cute-sidebar {
-            width: 270px;
-            background-color: var(--sidebar-bg);
-            border-right: 2px solid var(--border-soft);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            padding: 1.8rem 1.2rem;
-            z-index: 50;
-        }
-
-        .brand-cute {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 1.2rem;
-            margin-bottom: 1.2rem;
-            border-bottom: 2px dashed #fed7ca;
-        }
-
-        .brand-logo-img {
-            width: 54px;
-            height: 54px;
-            border-radius: 16px;
-            object-fit: cover;
-            box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2);
-            border: 2px solid #ffffff;
-            background: #ffffff;
-        }
-
-        .cute-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .cute-nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0.85rem 1.1rem;
-            border-radius: 20px;
-            color: #6b7280;
-            font-weight: 700;
-            font-size: 0.95rem;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            background: transparent;
-            border: none;
-            text-align: left;
-            width: 100%;
-        }
-
-        .cute-nav-btn i {
-            font-size: 1.15rem;
-            width: 22px;
-            text-align: center;
-        }
-
-        .cute-nav-btn:hover {
-            color: #ef4444;
-            background: #ffebe5;
-            transform: translateX(4px);
-        }
-
-        .cute-nav-btn.active {
-            background: #ffffff;
-            color: #f43f5e;
-            box-shadow: 0 6px 18px -3px rgba(255, 133, 162, 0.25);
-        }
-
-        .cute-main {
-            flex: 1;
-            padding: 2rem 2.5rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: calc(100% - 270px);
-        }
-
-        .cute-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .marshmallow-card {
-            background: var(--card-surface);
-            border: 2px solid var(--border-soft);
-            border-radius: 26px;
-            padding: 1.8rem;
-            box-shadow: 0 10px 25px -5px rgba(254, 215, 202, 0.4);
-        }
-
-        .view-panel {
-            display: none;
-            animation: softPop 0.25s ease;
-        }
-
+        .cute-main { flex: 1; padding: 2rem 2.5rem; max-width: 1400px; margin: 0 auto; width: calc(100% - 270px); }
+        .cute-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+        .marshmallow-card { background: var(--card-surface); border: 2px solid var(--border-soft); border-radius: 26px; padding: 1.8rem; box-shadow: 0 10px 25px -5px rgba(254, 215, 202, 0.4); }
+        .view-panel { display: none; animation: softPop 0.25s ease; }
         .view-panel.active { display: block; }
+        @keyframes softPop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes softPop {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .cute-table-box {
-            background: #ffffff;
-            border: 2px solid var(--border-soft);
-            border-radius: 24px;
-            overflow-x: auto;
-            box-shadow: 0 8px 24px -5px rgba(254, 215, 202, 0.35);
-        }
-
-        .table thead th {
-            background: #fff8f5;
-            color: #9ca3af;
-            font-weight: 700;
-            font-size: 0.85rem;
-            padding: 1rem 1.2rem;
-            border-bottom: 2px solid var(--border-soft);
-            white-space: nowrap;
-        }
-
-        .table tbody td {
-            padding: 1.1rem 1.2rem;
-            border-bottom: 1px solid #fff1ec;
-            vertical-align: middle;
-            font-weight: 600;
-            font-size: 0.95rem;
-            white-space: nowrap;
-        }
-
-        .gummy-badge {
-            font-size: 0.82rem;
-            font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
+        .cute-table-box { background: #ffffff; border: 2px solid var(--border-soft); border-radius: 24px; overflow-x: auto; box-shadow: 0 8px 24px -5px rgba(254, 215, 202, 0.35); }
+        .table thead th { background: #fff8f5; color: #9ca3af; font-weight: 700; font-size: 0.85rem; padding: 1rem 1.2rem; border-bottom: 2px solid var(--border-soft); white-space: nowrap; }
+        .table tbody td { padding: 1.1rem 1.2rem; border-bottom: 1px solid #fff1ec; vertical-align: middle; font-weight: 600; font-size: 0.95rem; white-space: nowrap; }
+        .gummy-badge { font-size: 0.82rem; font-weight: 700; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; }
         .gummy-optimo { background: #dcfce7; color: #15803d; border: 1.5px solid #bbf7d0; }
         .gummy-amarillo { background: #fef3c7; color: #b45309; border: 1.5px solid #fde68a; }
         .gummy-rojo { background: #ffe4e6; color: #e11d48; border: 1.5px solid #fecdd3; }
         .gummy-negro { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; }
 
-        .form-control, .form-select {
-            border: 2px solid #fed7ca;
-            border-radius: 16px;
-            padding: 0.8rem 1.1rem;
-            font-size: 0.95rem;
-            font-weight: 600;
-            background-color: #fffdfc;
-        }
-
-        .form-control:focus, .form-select:focus {
-            background-color: #ffffff;
-            border-color: #ff85a2;
-            box-shadow: 0 0 0 4px rgba(255, 133, 162, 0.18);
-            outline: none;
-        }
-
-        .btn-cute-pink {
-            background: linear-gradient(135deg, #ff85a2, #f43f5e);
-            color: white;
-            border: none;
-            border-radius: 18px;
-            padding: 0.85rem 1.5rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 6px 16px rgba(244, 63, 94, 0.28);
-            transition: transform 0.2s;
-        }
+        .form-control, .form-select { border: 2px solid #fed7ca; border-radius: 16px; padding: 0.8rem 1.1rem; font-size: 0.95rem; font-weight: 600; background-color: #fffdfc; }
+        .form-control:focus, .form-select:focus { background-color: #ffffff; border-color: #ff85a2; box-shadow: 0 0 0 4px rgba(255, 133, 162, 0.18); outline: none; }
+        .btn-cute-pink { background: linear-gradient(135deg, #ff85a2, #f43f5e); color: white; border: none; border-radius: 18px; padding: 0.85rem 1.5rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 16px rgba(244, 63, 94, 0.28); transition: transform 0.2s; }
         .btn-cute-pink:hover { transform: translateY(-2px); color: white; }
+        .btn-cute-mint { background: linear-gradient(135deg, #34d399, #10b981); color: white; border: none; border-radius: 18px; padding: 0.85rem 1.5rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25); transition: transform 0.2s; }
+        .btn-cute-peach { background: linear-gradient(135deg, #fb923c, #f97316); color: white; border: none; border-radius: 18px; padding: 0.85rem 1.5rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 16px rgba(249, 115, 22, 0.25); transition: transform 0.2s; }
+        .cute-icon-btn { width: 36px; height: 36px; border-radius: 12px; border: 1.5px solid #fed7ca; background: #ffffff; color: #9ca3af; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        .btn-cute-mint {
-            background: linear-gradient(135deg, #34d399, #10b981);
-            color: white;
-            border: none;
-            border-radius: 18px;
-            padding: 0.85rem 1.5rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
-            transition: transform 0.2s;
-        }
-        .btn-cute-mint:hover { transform: translateY(-2px); color: white; }
-
-        .btn-cute-peach {
-            background: linear-gradient(135deg, #fb923c, #f97316);
-            color: white;
-            border: none;
-            border-radius: 18px;
-            padding: 0.85rem 1.5rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.25);
-            transition: transform 0.2s;
-        }
-        .btn-cute-peach:hover { transform: translateY(-2px); color: white; }
-
-        .cute-icon-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 12px;
-            border: 1.5px solid #fed7ca;
-            background: #ffffff;
-            color: #9ca3af;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        /* ADAPTATIVO: MÓVILES Y PANTALLAS PEQUEÑAS */
         @media (max-width: 991px) {
-            .cute-layout {
-                flex-direction: column;
-            }
-            .cute-sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 1rem;
-                border-right: none;
-                border-bottom: 2px solid var(--border-soft);
-            }
-            .brand-cute {
-                padding-bottom: 0.8rem;
-                margin-bottom: 0.8rem;
-            }
-            .cute-nav {
-                flex-direction: row;
-                overflow-x: auto;
-                padding-bottom: 6px;
-                gap: 6px;
-            }
-            .cute-nav-btn {
-                padding: 0.6rem 0.9rem;
-                white-space: nowrap;
-                font-size: 0.85rem;
-                flex-shrink: 0;
-                width: auto;
-            }
-            .cute-main {
-                width: 100%;
-                padding: 1.2rem;
-            }
+            .cute-layout { flex-direction: column; }
+            .cute-sidebar { width: 100%; height: auto; position: relative; padding: 1rem; border-right: none; border-bottom: 2px solid var(--border-soft); }
+            .brand-cute { padding-bottom: 0.8rem; margin-bottom: 0.8rem; }
+            .cute-nav { flex-direction: row; overflow-x: auto; padding-bottom: 6px; gap: 6px; }
+            .cute-nav-btn { padding: 0.6rem 0.9rem; white-space: nowrap; font-size: 0.85rem; flex-shrink: 0; width: auto; }
+            .cute-main { width: 100%; padding: 1.2rem; }
         }
     </style>
 </head>
@@ -342,14 +80,10 @@
     <!-- OVERLAY DE INICIO DE SESIÓN SEGURO -->
     <div id="login-overlay">
         <div class="login-card">
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" 
-                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';"
-                 alt="Logo" class="brand-logo-img mb-3" style="width: 70px; height: 70px;">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';" alt="Logo" class="brand-logo-img mb-3" style="width: 70px; height: 70px;">
             <h3 class="h5 fw-bold mb-1 text-dark">Acceso Restringido 🔒</h3>
             <p class="text-muted small mb-4">Ingresa tus credenciales autorizadas de Frut Market.</p>
-            
             <div id="login-error" class="alert alert-danger py-2 small d-none rounded-3"></div>
-
             <div class="mb-3 text-start">
                 <label class="form-label small fw-bold">Usuario</label>
                 <input type="text" id="login-user" class="form-control" placeholder="" autofocus>
@@ -358,11 +92,7 @@
                 <label class="form-label small fw-bold">Contraseña</label>
                 <input type="password" id="login-pass" class="form-control" placeholder="">
             </div>
-
-            <button class="btn-cute-pink w-100 py-3" onclick="ejecutarLogin()">
-                Iniciar Sesión Segura 
-            </button>
-            
+            <button class="btn-cute-pink w-100 py-3" onclick="ejecutarLogin()">Iniciar Sesión Segura</button>
             <div class="mt-4 pt-3 border-top border-soft">
                 <small class="text-muted" style="font-size: 0.75rem;">Sistema Protegido — Acceso solo a personal</small>
             </div>
@@ -372,13 +102,11 @@
     <!-- APLICACIÓN PRINCIPAL -->
     <div class="cute-layout">
 
-        <!-- Barra Lateral / Barra de Menú -->
+        <!-- Barra Lateral -->
         <aside class="cute-sidebar">
             <div class="brand-cute justify-content-between">
                 <div class="d-flex align-items-center gap-3">
-                    <img src="{{ url_for('static', filename='logo.jpeg') }}" 
-                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';"
-                         alt="Frut Market" class="brand-logo-img">
+                    <img src="{{ url_for('static', filename='logo.jpeg') }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';" alt="Frut Market" class="brand-logo-img">
                     <div>
                         <h1 class="h6 fw-bold mb-0 text-dark">Frut Market</h1>
                         <small class="text-success fw-bold" style="font-size: 0.72rem;">Frescura Inteligente ✨</small>
@@ -387,55 +115,42 @@
             </div>
 
             <nav class="cute-nav">
-                <button class="cute-nav-btn active" id="btn-nav-resumen" onclick="navegar('resumen')">
-                    <i class="fa-solid fa-chart-pie text-danger"></i>
-                    <span>Stock General</span>
-                </button>
-                <button class="cute-nav-btn" id="btn-nav-inventario" onclick="navegar('inventario')">
-                    <i class="fa-solid fa-layer-group text-primary"></i>
-                    <span>Lotes</span>
-                </button>
-                <button class="cute-nav-btn" id="btn-nav-ingreso" onclick="navegar('ingreso')">
-                    <i class="fa-solid fa-circle-plus text-success"></i>
-                    <span>Entrada Nueva</span>
-                </button>
-                <button class="cute-nav-btn" id="btn-nav-salida" onclick="navegar('salida')">
-                    <i class="fa-solid fa-dolly text-warning"></i>
-                    <span>Despachar</span>
-                </button>
-                <button class="cute-nav-btn" id="btn-nav-merma" onclick="navegar('merma')">
-                    <i class="fa-solid fa-recycle text-info"></i>
-                    <span>Merma</span>
-                </button>
-                <button class="cute-nav-btn" id="btn-nav-config" onclick="navegar('config')">
-                    <i class="fa-solid fa-sliders text-secondary"></i>
-                    <span>Catálogo</span>
-                </button>
+                <button class="cute-nav-btn active" id="btn-nav-resumen" onclick="navegar('resumen')"><i class="fa-solid fa-chart-pie text-danger"></i><span>Stock General</span></button>
+                <button class="cute-nav-btn" id="btn-nav-inventario" onclick="navegar('inventario')"><i class="fa-solid fa-layer-group text-primary"></i><span>Lotes</span></button>
+                <button class="cute-nav-btn" id="btn-nav-ingreso" onclick="navegar('ingreso')"><i class="fa-solid fa-circle-plus text-success"></i><span>Entrada Nueva</span></button>
+                <button class="cute-nav-btn" id="btn-nav-salida" onclick="navegar('salida')"><i class="fa-solid fa-dolly text-warning"></i><span>Despachar</span></button>
+                <button class="cute-nav-btn" id="btn-nav-merma" onclick="navegar('merma')"><i class="fa-solid fa-recycle text-info"></i><span>Merma</span></button>
+                <button class="cute-nav-btn" id="btn-nav-config" onclick="navegar('config')"><i class="fa-solid fa-sliders text-secondary"></i><span>Catálogo</span></button>
             </nav>
 
             <div class="pt-3 border-top border-2 border-dashed border-danger border-opacity-25 mt-auto d-flex justify-content-between align-items-center">
                 <span class="small text-muted fw-bold" id="label-usuario-activo">👤 admin</span>
-                <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" onclick="cerrarSesion()">
-                    Salir
-                </button>
+                <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" onclick="cerrarSesion()">Salir</button>
             </div>
         </aside>
 
-        <!-- Contenido Central Dinámico -->
+        <!-- Contenido Central -->
         <main class="cute-main">
-            
             <div class="cute-header">
                 <div>
-                    <h2 class="h4 fw-bold mb-1 text-dark" id="stage-title">Stock General de Frutas & Alimentos </h2>
+                    <h2 class="h4 fw-bold mb-1 text-dark" id="stage-title">Stock General de Frutas & Alimentos</h2>
                     <p class="text-muted fw-semibold small mb-0" id="stage-desc">Existencias consolidadas y listas para reparto</p>
                 </div>
-                <button class="btn btn-white border-2 border-light-subtle shadow-sm rounded-pill px-3 py-2 fw-bold text-dark bg-white" onclick="forzarSemaforo()">
-                    🔄 Recalcular Semáforo
-                </button>
+                <button class="btn btn-white border-2 border-light-subtle shadow-sm rounded-pill px-3 py-2 fw-bold text-dark bg-white" onclick="forzarSemaforo()">🔄 Recalcular Semáforo</button>
             </div>
 
             <!-- 1. RESUMEN GENERAL -->
             <section id="view-resumen" class="view-panel active">
+                
+                <!-- WIDGET DE TEMPORADA CLIMÁTICA -->
+                <div id="widget-temporada" class="alert d-flex align-items-center gap-3 mb-4 rounded-4 shadow-sm border-0" style="background: #fff5f2;">
+                    <div id="widget-icono" style="font-size: 2.5rem;">📅</div>
+                    <div>
+                        <h5 class="fw-bold mb-1 text-dark" id="widget-titulo">Cargando temporada...</h5>
+                        <p class="mb-0 small fw-semibold text-muted" id="widget-mensaje">Analizando condiciones climáticas...</p>
+                    </div>
+                </div>
+
                 <div class="cute-table-box">
                     <table class="table table-hover align-middle">
                         <thead>
@@ -477,31 +192,17 @@
                         <div class="marshmallow-card">
                             <div class="d-flex align-items-center gap-3 mb-4">
                                 <div style="font-size: 2rem;">📦</div>
-                                <div>
-                                    <h3 class="h5 fw-bold mb-1 text-dark">Registrar Entrada de Lote</h3>
-                                    <p class="text-muted small fw-semibold mb-0">Agrega mercancía que acaba de llegar al almacén.</p>
-                                </div>
+                                <div><h3 class="h5 fw-bold mb-1 text-dark">Registrar Entrada</h3><p class="text-muted small fw-semibold mb-0">Agrega mercancía al almacén.</p></div>
                             </div>
-
                             <div class="mb-3">
                                 <label class="form-label small fw-bold">Producto recibido</label>
                                 <select id="select-producto-ingreso" class="form-select"></select>
                             </div>
-
                             <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold">Cantidad de unidades</label>
-                                    <input type="number" id="ingreso-cantidad" class="form-control" placeholder="Ej. 100">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold">Fecha de llegada</label>
-                                    <input type="date" id="ingreso-fecha" class="form-control">
-                                </div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">Cantidad</label><input type="number" id="ingreso-cantidad" class="form-control" placeholder="Ej. 100"></div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">Fecha de llegada</label><input type="date" id="ingreso-fecha" class="form-control"></div>
                             </div>
-
-                            <button class="btn-cute-mint w-100 py-3" onclick="registrarIngresoFácil()">
-                                ✨ Guardar Entrada en Almacén
-                            </button>
+                            <button class="btn-cute-mint w-100 py-3" onclick="registrarIngresoFácil()">✨ Guardar Entrada</button>
                         </div>
                     </div>
                 </div>
@@ -514,25 +215,17 @@
                         <div class="marshmallow-card">
                             <div class="d-flex align-items-center gap-3 mb-4">
                                 <div style="font-size: 2rem;">🚛</div>
-                                <div>
-                                    <h3 class="h5 fw-bold mb-1 text-dark">Despacho Automático</h3>
-                                    <p class="text-muted small fw-semibold mb-0">Descuenta automáticamente los lotes más viejos para evitar mermas.</p>
-                                </div>
+                                <div><h3 class="h5 fw-bold mb-1 text-dark">Despacho Automático</h3><p class="text-muted small fw-semibold mb-0">Descuenta lotes más viejos para evitar mermas.</p></div>
                             </div>
-
                             <div class="mb-3">
                                 <label class="form-label small fw-bold">Producto a despachar</label>
                                 <select id="select-producto-salida" class="form-select"></select>
                             </div>
-
                             <div class="mb-4">
                                 <label class="form-label small fw-bold">Cantidad requerida</label>
                                 <input type="number" id="salida-cantidad" class="form-control" placeholder="">
                             </div>
-
-                            <button class="btn-cute-peach w-100 py-3" onclick="despacharFácil()">
-                                🚀 Procesar Salida
-                            </button>
+                            <button class="btn-cute-peach w-100 py-3" onclick="despacharFácil()">🚀 Procesar Salida</button>
                         </div>
                     </div>
                 </div>
@@ -544,10 +237,7 @@
                     <div class="col-xl-4 col-lg-5">
                         <div class="marshmallow-card">
                             <h3 class="h6 fw-bold mb-3 text-dark">Nuevo Aliado / Destino</h3>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Nombre del Aliado</label>
-                                <input type="text" id="merma-nombre" class="form-control" placeholder="">
-                            </div>
+                            <div class="mb-3"><label class="form-label small fw-bold">Nombre del Aliado</label><input type="text" id="merma-nombre" class="form-control" placeholder=""></div>
                             <div class="mb-3">
                                 <label class="form-label small fw-bold">Tipo</label>
                                 <select id="merma-tipo" class="form-select">
@@ -557,28 +247,15 @@
                                     <option value="Ganadería">Ganadería</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">WhatsApp</label>
-                                <input type="text" id="merma-wsp" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold">Notas</label>
-                                <textarea id="merma-desc" class="form-control" rows="2"></textarea>
-                            </div>
+                            <div class="mb-3"><label class="form-label small fw-bold">WhatsApp</label><input type="text" id="merma-wsp" class="form-control" placeholder=""></div>
+                            <div class="mb-4"><label class="form-label small fw-bold">Notas</label><textarea id="merma-desc" class="form-control" rows="2"></textarea></div>
                             <button class="btn-cute-pink w-100" onclick="guardarFundacion()">Guardar Aliado</button>
                         </div>
                     </div>
                     <div class="col-xl-8 col-lg-7">
                         <div class="cute-table-box">
                             <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th class="ps-4">Aliado</th>
-                                        <th>Tipo</th>
-                                        <th>WhatsApp</th>
-                                        <th class="pe-4 text-end">Acciones</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th class="ps-4">Aliado</th><th>Tipo</th><th>WhatsApp</th><th class="pe-4 text-end">Acciones</th></tr></thead>
                                 <tbody id="tabla-fundaciones"></tbody>
                             </table>
                         </div>
@@ -586,15 +263,20 @@
                 </div>
             </section>
 
-            <!-- 6. CATÁLOGO -->
+            <!-- 6. CATÁLOGO CON UMBRAL DE CLIMA Y TEMPORADAS DE DEMANDA -->
             <section id="view-config" class="view-panel">
                 <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="marshmallow-card">
-                            <h3 class="h6 fw-bold mb-3 text-dark">🏷️ Categorías</h3>
-                            <div class="d-flex gap-2 mb-3">
-                                <input type="text" id="cat-nombre" class="form-control" placeholder="Nombre">
-                                <input type="number" id="cat-dias" class="form-control" style="max-width: 120px;" placeholder="Días">
+                            <h3 class="h6 fw-bold mb-3 text-dark">🏷️ Categorías & Sensibilidad Temp.</h3>
+                            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+                                <input type="text" id="cat-nombre" class="form-control flex-grow-1" placeholder="Nombre">
+                                <input type="number" id="cat-dias" class="form-control" style="max-width: 90px;" placeholder="Días">
+                                <input type="number" id="cat-temp" class="form-control" style="max-width: 100px;" placeholder="Límite °C">
+                                <div class="form-check me-2">
+                                    <input class="form-check-input border-danger" type="checkbox" id="cat-sensible">
+                                    <label class="form-check-label small fw-bold text-danger" for="cat-sensible">Sensible</label>
+                                </div>
                                 <button class="btn-cute-pink px-4" onclick="crearCategoriaFácil()">Crear</button>
                             </div>
                             <ul id="lista-categorias-admin" class="list-group list-group-flush border rounded-4 small"></ul>
@@ -602,50 +284,44 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="marshmallow-card">
-                            <h3 class="h6 fw-bold mb-3 text-dark">🍎 Catálogo de Productos</h3>
-                            <input type="text" id="prod-nombre" class="form-control mb-2" placeholder="Nombre">
-                            <select id="select-cat-producto" class="form-select mb-3"></select>
+                            <h3 class="h6 fw-bold mb-3 text-dark">🍎 Catálogo & Temporadas de Venta</h3>
+                            <input type="text" id="prod-nombre" class="form-control mb-2" placeholder="Nombre de la fruta">
+                            <select id="select-cat-producto" class="form-select mb-2"></select>
+                            
+                            <!-- Nuevo Select de Demanda -->
+                            <select id="prod-demanda" class="form-select mb-3 border-warning">
+                                <option value="Todo el año">Demanda Constante (Todo el año)</option>
+                                <option value="Calor">Alta Venta en Temporada Calor</option>
+                                <option value="Lluvias">Alta Venta en Temporada Lluvias</option>
+                                <option value="Frío">Alta Venta en Temporada Frío</option>
+                            </select>
+
                             <button class="btn-cute-pink w-100 mb-3" onclick="crearProductoFácil()">Registrar Producto</button>
                             <ul id="lista-productos-admin" class="list-group list-group-flush border rounded-4 small"></ul>
                         </div>
                     </div>
                 </div>
             </section>
-
         </main>
     </div>
 
     <!-- MODAL EDITAR ALIADO -->
     <div class="modal fade" id="modalEditarFundacion" tabindex="-1" aria-hidden="true">
+        <!-- Contenido del modal se mantiene igual -->
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow-lg p-3">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title h6 fw-bold text-dark">Editar Aliado ✏️</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+                <div class="modal-header border-0 pb-0"><h5 class="modal-title h6 fw-bold text-dark">Editar Aliado ✏️</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <input type="hidden" id="edit-fund-id">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Nombre</label>
-                        <input type="text" id="edit-fund-nombre" class="form-control">
-                    </div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Nombre</label><input type="text" id="edit-fund-nombre" class="form-control"></div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Tipo</label>
                         <select id="edit-fund-tipo" class="form-select">
-                            <option value="Beneficencia">Beneficencia</option>
-                            <option value="Venta Rebajada">Venta Rebajada</option>
-                            <option value="Reciclaje / Composta">Composta</option>
-                            <option value="Ganadería">Ganadería</option>
+                            <option value="Beneficencia">Beneficencia</option><option value="Venta Rebajada">Venta Rebajada</option><option value="Reciclaje / Composta">Composta</option><option value="Ganadería">Ganadería</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">WhatsApp</label>
-                        <input type="text" id="edit-fund-wsp" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Notas</label>
-                        <textarea id="edit-fund-desc" class="form-control" rows="2"></textarea>
-                    </div>
+                    <div class="mb-3"><label class="form-label small fw-bold">WhatsApp</label><input type="text" id="edit-fund-wsp" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label small fw-bold">Notas</label><textarea id="edit-fund-desc" class="form-control" rows="2"></textarea></div>
                     <button type="button" class="btn-cute-pink w-100" onclick="guardarEdicionFundacion()">Guardar Cambios</button>
                 </div>
             </div>
@@ -653,28 +329,26 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         let modalEdicionInstancia = null;
         let listaAliadosCache = [];
+        let temporadaActualId = 'Todo el año';
 
         const titulos = {
-            'resumen': { t: 'Stock General de Frutas & Alimentos 🧺', d: 'Existencias consolidadas y listas para reparto' },
+            'resumen': { t: 'Stock General de Frutas & Alimentos', d: 'Existencias consolidadas y listas para reparto' },
             'inventario': { t: 'Lotes Detallados 📋', d: 'Ordenados por caducidad para prevenir mermas' },
             'ingreso': { t: 'Entrada de Mercancía Nueva 📦', d: 'Registra lotes y programa su vida útil' },
             'salida': { t: 'Despacho Rápido 🚛', d: 'Descuento inteligente por lote más antiguo' },
             'merma': { t: 'Gestión de Merma & Economía Circular 🌱', d: 'Alianzas con bancos de alimentos, composta y ganado' },
-            'config': { t: 'Catálogo de Productos & Categorías 🏷️', d: 'Configura tus productos y días de vida útil' }
+            'config': { t: 'Catálogo de Productos & Categorías 🏷️', d: 'Configura sensibilidad climática y demanda' }
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
             const fechaInput = document.getElementById('ingreso-fecha');
             if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
-            
             const modalEl = document.getElementById('modalEditarFundacion');
             if (modalEl) modalEdicionInstancia = new bootstrap.Modal(modalEl);
 
-            // Verificar si ya existe sesión activa
             const res = await fetch('/api/check_session');
             const data = await res.json();
             if (data.autenticado) {
@@ -687,63 +361,51 @@
         });
 
         async function ejecutarLogin() {
-            const user = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value;
-            const errDiv = document.getElementById('login-error');
-            errDiv.classList.add('d-none');
-
-            if (!user || !pass) {
-                errDiv.innerText = "Por favor ingresa usuario y contraseña.";
-                errDiv.classList.remove('d-none');
-                return;
-            }
-
+            const user = document.getElementById('login-user').value.trim(); const pass = document.getElementById('login-pass').value;
+            const errDiv = document.getElementById('login-error'); errDiv.classList.add('d-none');
+            if (!user || !pass) { errDiv.innerText = "Por favor ingresa usuario y contraseña."; errDiv.classList.remove('d-none'); return; }
             try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
-                });
+                const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user, password: pass }) });
                 const data = await res.json();
-
-                if (res.ok) {
-                    document.getElementById('login-overlay').style.display = 'none';
-                    document.getElementById('label-usuario-activo').innerText = '👤 ' + data.usuario.username;
-                    navegar('resumen');
-                } else {
-                    errDiv.innerText = data.error || "Credenciales inválidas";
-                    errDiv.classList.remove('d-none');
-                }
-            } catch (e) {
-                errDiv.innerText = "Error de conexión con el servidor.";
-                errDiv.classList.remove('d-none');
-            }
+                if (res.ok) { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('label-usuario-activo').innerText = '👤 ' + data.usuario.username; navegar('resumen'); } 
+                else { errDiv.innerText = data.error || "Credenciales inválidas"; errDiv.classList.remove('d-none'); }
+            } catch (e) { errDiv.innerText = "Error de conexión con el servidor."; errDiv.classList.remove('d-none'); }
         }
 
-        async function cerrarSesion() {
-            await fetch('/api/logout', { method: 'POST' });
-            location.reload();
-        }
+        async function cerrarSesion() { await fetch('/api/logout', { method: 'POST' }); location.reload(); }
 
-        function navegar(seccion) {
+        async function navegar(seccion) {
             document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.cute-nav-btn').forEach(el => el.classList.remove('active'));
-
             const panelObj = document.getElementById('view-' + seccion);
             const btnObj = document.getElementById('btn-nav-' + seccion);
-            if (panelObj) panelObj.classList.add('active');
-            if (btnObj) btnObj.classList.add('active');
+            if (panelObj) panelObj.classList.add('active'); if (btnObj) btnObj.classList.add('active');
+            if (titulos[seccion]) { document.getElementById('stage-title').innerText = titulos[seccion].t; document.getElementById('stage-desc').innerText = titulos[seccion].d; }
 
-            if (titulos[seccion]) {
-                document.getElementById('stage-title').innerText = titulos[seccion].t;
-                document.getElementById('stage-desc').innerText = titulos[seccion].d;
+            if (seccion === 'resumen') { 
+                await cargarWidgetTemporada(); 
+                cargarResumenGeneral(); 
             }
-
-            if (seccion === 'resumen') cargarResumenGeneral();
             if (seccion === 'inventario') cargarInventario();
             if (seccion === 'merma') cargarFundaciones();
             if (seccion === 'config') cargarListasAdmin();
             if (seccion === 'ingreso' || seccion === 'salida') cargarSelects();
+        }
+
+        async function cargarWidgetTemporada() {
+            try {
+                const res = await fetch('/api/temporada');
+                if (res.ok) {
+                    const data = await res.json();
+                    temporadaActualId = data.id_temp; // Guardamos temporada actual para las etiquetas
+                    document.getElementById('widget-titulo').innerText = `Temporada: ${data.temporada}`;
+                    document.getElementById('widget-mensaje').innerText = data.mensaje;
+                    const alertDiv = document.getElementById('widget-temporada');
+                    if (data.alerta === 'Alta') alertDiv.style.background = '#ffebe5';
+                    else if (data.alerta === 'Media') alertDiv.style.background = '#fff8e1';
+                    else alertDiv.style.background = '#e8f5e9';
+                }
+            } catch(e){}
         }
 
         async function cargarResumenGeneral() {
@@ -753,23 +415,25 @@
                 const data = await res.json();
                 const tabla = document.getElementById('tabla-resumen');
                 tabla.innerHTML = '';
-
-                if (!data.resumen || data.resumen.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🧺 No hay existencias registradas.</td></tr>`;
-                    return;
-                }
+                if (!data.resumen || data.resumen.length === 0) { tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🧺 No hay existencias registradas.</td></tr>`; return; }
 
                 data.resumen.forEach(item => {
+                    // Etiqueta de Alta Demanda según el clima / calendario
+                    let badgeDemanda = '';
+                    if (item.temporada_demanda === temporadaActualId && temporadaActualId !== 'Todo el año') {
+                        badgeDemanda = `<span class="badge bg-warning text-dark ms-2 rounded-pill shadow-sm"><i class="fa-solid fa-fire me-1"></i>Alta Venta</span>`;
+                    }
+
                     tabla.innerHTML += `
                         <tr>
-                            <td class="ps-4 fw-bold text-dark fs-6">${item.producto}</td>
+                            <td class="ps-4 fw-bold text-dark fs-6">${item.producto} ${badgeDemanda}</td>
                             <td><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2">${item.categoria}</span></td>
                             <td><span class="fw-bold fs-5 text-dark">${item.stock_total}</span> <span class="text-muted small">piezas</span></td>
                             <td class="pe-4 text-end"><span class="gummy-badge gummy-optimo">Disponible</span></td>
                         </tr>
                     `;
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) {}
         }
 
         async function cargarInventario() {
@@ -779,263 +443,118 @@
                 const data = await res.json();
                 const tabla = document.getElementById('tabla-inventario');
                 tabla.innerHTML = '';
-
-                if (!data.inventario || data.inventario.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-bold">📦 No hay lotes registrados por el momento.</td></tr>`;
-                    return;
-                }
-
+                if (!data.inventario || data.inventario.length === 0) { tabla.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-bold">📦 No hay lotes.</td></tr>`; return; }
                 data.inventario.forEach(item => {
-                    let badgeClass = 'gummy-optimo';
-                    let label = 'Óptimo';
+                    let badgeClass = 'gummy-optimo'; let label = 'Óptimo';
                     if (item.estado_semaforo === 'Amarillo') { badgeClass = 'gummy-amarillo'; label = 'Próximo a Vencer'; }
                     if (item.estado_semaforo === 'Rojo') { badgeClass = 'gummy-rojo'; label = 'Crítico'; }
                     if (item.estado_semaforo === 'Negro') { badgeClass = 'gummy-negro'; label = 'Caducado'; }
-
-                    tabla.innerHTML += `
-                        <tr>
-                            <td class="ps-4 fw-bold text-muted">#${item.id_lote}</td>
-                            <td class="fw-bold text-dark">${item.producto}</td>
-                            <td><span class="badge bg-light text-secondary border px-2 py-1">${item.categoria}</span></td>
-                            <td class="text-muted">${item.fecha_ingreso}</td>
-                            <td class="fw-bold fs-6">${item.cantidad_actual}</td>
-                            <td class="pe-4 text-end"><span class="gummy-badge ${badgeClass}">${label}</span></td>
-                        </tr>
-                    `;
+                    tabla.innerHTML += `<tr><td class="ps-4 fw-bold text-muted">#${item.id_lote}</td><td class="fw-bold text-dark">${item.producto}</td><td><span class="badge bg-light text-secondary border px-2 py-1">${item.categoria}</span></td><td class="text-muted">${item.fecha_ingreso}</td><td class="fw-bold fs-6">${item.cantidad_actual}</td><td class="pe-4 text-end"><span class="gummy-badge ${badgeClass}">${label}</span></td></tr>`;
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) {}
         }
 
         async function cargarSelects() {
             try {
-                const resProd = await fetch('/api/productos');
-                const productos = await resProd.json();
-                let opts = '';
-                productos.forEach(p => opts += `<option value="${p.id_producto}">${p.nombre} (${p.categoria || 'Sin categoría'})</option>`);
-                document.getElementById('select-producto-ingreso').innerHTML = opts;
-                document.getElementById('select-producto-salida').innerHTML = opts;
-
-                const resCat = await fetch('/api/categorias');
-                const cats = await resCat.json();
-                let optsC = '';
-                cats.forEach(c => optsC += `<option value="${c.id_categoria}">${c.nombre} (${c.dias_vida_util} días)</option>`);
+                const resProd = await fetch('/api/productos'); const productos = await resProd.json();
+                let opts = ''; productos.forEach(p => opts += `<option value="${p.id_producto}">${p.nombre} (${p.categoria || 'Sin categoría'})</option>`);
+                document.getElementById('select-producto-ingreso').innerHTML = opts; document.getElementById('select-producto-salida').innerHTML = opts;
+                const resCat = await fetch('/api/categorias'); const cats = await resCat.json();
+                let optsC = ''; cats.forEach(c => optsC += `<option value="${c.id_categoria}">${c.nombre} (${c.dias_vida_util} días)</option>`);
                 document.getElementById('select-cat-producto').innerHTML = optsC;
-            } catch (err) { console.error(err); }
+            } catch (err) {}
         }
 
         async function cargarListasAdmin() {
             try {
-                const resC = await fetch('/api/categorias');
-                const cats = await resC.json();
+                const resC = await fetch('/api/categorias'); const cats = await resC.json();
                 let htmlC = '';
                 cats.forEach(c => {
-                    htmlC += `
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft">
-                            <span><strong class="text-dark">${c.nombre}</strong> <span class="text-muted small">(${c.dias_vida_util} días)</span></span>
-                            <button class="cute-icon-btn" onclick="eliminarCat(${c.id_categoria})"><i class="fa-solid fa-trash-can small"></i></button>
-                        </li>
-                    `;
+                    let textSensible = c.sensible_al_clima ? `<span class="badge bg-danger ms-2"><i class="fa-solid fa-temperature-arrow-up me-1"></i> Límite: ${c.temp_umbral}°C</span>` : '';
+                    htmlC += `<li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft"><span><strong class="text-dark">${c.nombre}</strong> <span class="text-muted small">(${c.dias_vida_util} días)</span>${textSensible}</span><button class="cute-icon-btn" onclick="eliminarCat(${c.id_categoria})"><i class="fa-solid fa-trash-can small"></i></button></li>`;
                 });
                 document.getElementById('lista-categorias-admin').innerHTML = htmlC;
                 document.getElementById('select-cat-producto').innerHTML = cats.map(c => `<option value="${c.id_categoria}">${c.nombre}</option>`).join('');
 
-                const resP = await fetch('/api/productos');
-                const prods = await resP.json();
+                const resP = await fetch('/api/productos'); const prods = await resP.json();
                 let htmlP = '';
-                prods.forEach(p => {
-                    htmlP += `
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft">
-                            <span><strong class="text-dark">${p.nombre}</strong> <span class="text-muted small">(${p.categoria || 'Sin cat'})</span></span>
-                            <button class="cute-icon-btn" onclick="eliminarProd(${p.id_producto})"><i class="fa-solid fa-trash-can small"></i></button>
-                        </li>
-                    `;
+                prods.forEach(p => { 
+                    let badgeDemanda = p.temporada_demanda !== 'Todo el año' ? `<span class="badge bg-warning text-dark ms-2 shadow-sm">${p.temporada_demanda}</span>` : '';
+                    htmlP += `<li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft"><span><strong class="text-dark">${p.nombre}</strong> <span class="text-muted small">(${p.categoria || 'Sin cat'})</span>${badgeDemanda}</span><button class="cute-icon-btn" onclick="eliminarProd(${p.id_producto})"><i class="fa-solid fa-trash-can small"></i></button></li>`; 
                 });
                 document.getElementById('lista-productos-admin').innerHTML = htmlP;
-            } catch (err) { console.error(err); }
+            } catch (err) {}
         }
 
         async function registrarIngresoFácil() {
-            const id_producto = document.getElementById('select-producto-ingreso').value;
-            const cantidad = document.getElementById('ingreso-cantidad').value;
-            const fecha_ingreso = document.getElementById('ingreso-fecha').value;
+            const id_producto = document.getElementById('select-producto-ingreso').value; const cantidad = document.getElementById('ingreso-cantidad').value; const fecha_ingreso = document.getElementById('ingreso-fecha').value;
             if (!id_producto || !cantidad) { alert("Completa los datos requeridos"); return; }
-
-            const res = await fetch('/api/lotes', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id_producto: parseInt(id_producto), cantidad: parseFloat(cantidad), fecha_ingreso })
-            });
-            if (res.ok) {
-                alert("¡Lote ingresado con éxito! 🥑");
-                document.getElementById('ingreso-cantidad').value = '';
-                navegar('resumen');
-            }
+            const res = await fetch('/api/lotes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id_producto: parseInt(id_producto), cantidad: parseFloat(cantidad), fecha_ingreso }) });
+            if (res.ok) { alert("¡Lote ingresado! 🥑"); document.getElementById('ingreso-cantidad').value = ''; navegar('resumen'); }
         }
 
         async function despacharFácil() {
-            const id_producto = document.getElementById('select-producto-salida').value;
-            const cantidad = document.getElementById('salida-cantidad').value;
-            if (!id_producto || !cantidad) { alert("Indica producto y cantidad a despachar"); return; }
-
-            const res = await fetch('/api/salidas', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id_producto: parseInt(id_producto), cantidad: parseFloat(cantidad) })
-            });
+            const id_producto = document.getElementById('select-producto-salida').value; const cantidad = document.getElementById('salida-cantidad').value;
+            if (!id_producto || !cantidad) { alert("Indica producto y cantidad"); return; }
+            const res = await fetch('/api/salidas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id_producto: parseInt(id_producto), cantidad: parseFloat(cantidad) }) });
             const data = await res.json();
-            if (res.ok) {
-                alert(data.mensaje);
-                document.getElementById('salida-cantidad').value = '';
-                navegar('resumen');
-            } else {
-                alert("Aviso: " + data.error);
-            }
+            if (res.ok) { alert(data.mensaje); document.getElementById('salida-cantidad').value = ''; navegar('resumen'); } else { alert("Aviso: " + data.error); }
         }
 
         async function crearCategoriaFácil() {
             const nombre = document.getElementById('cat-nombre').value.trim();
             const dias_vida_util = document.getElementById('cat-dias').value;
+            const sensible = document.getElementById('cat-sensible').checked;
+            const temp_umbral = document.getElementById('cat-temp').value || 30.0;
             if (!nombre || !dias_vida_util) return;
-            await fetch('/api/categorias', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ nombre, dias_vida_util: parseInt(dias_vida_util) })
-            });
-            document.getElementById('cat-nombre').value = '';
-            document.getElementById('cat-dias').value = '';
+            await fetch('/api/categorias', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nombre, dias_vida_util: parseInt(dias_vida_util), sensible_al_clima: sensible, temp_umbral: temp_umbral }) });
+            document.getElementById('cat-nombre').value = ''; document.getElementById('cat-dias').value = ''; document.getElementById('cat-temp').value = ''; document.getElementById('cat-sensible').checked = false;
             cargarListasAdmin();
         }
 
-        async function eliminarCat(id) {
-            if (confirm("¿Eliminar categoría?")) {
-                await fetch(`/api/categorias/${id}`, { method: 'DELETE' });
-                cargarListasAdmin();
-            }
-        }
+        async function eliminarCat(id) { if (confirm("¿Eliminar categoría?")) { await fetch(`/api/categorias/${id}`, { method: 'DELETE' }); cargarListasAdmin(); } }
 
         async function crearProductoFácil() {
             const nombre = document.getElementById('prod-nombre').value.trim();
             const id_categoria = document.getElementById('select-cat-producto').value;
+            const temporada_demanda = document.getElementById('prod-demanda').value;
             if (!nombre || !id_categoria) return;
-            await fetch('/api/productos', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ nombre, id_categoria: parseInt(id_categoria) })
-            });
-            document.getElementById('prod-nombre').value = '';
-            cargarListasAdmin();
+            await fetch('/api/productos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nombre, id_categoria: parseInt(id_categoria), temporada_demanda: temporada_demanda }) });
+            document.getElementById('prod-nombre').value = ''; cargarListasAdmin();
         }
 
-        async function eliminarProd(id) {
-            if (confirm("¿Eliminar producto?")) {
-                await fetch(`/api/productos/${id}`, { method: 'DELETE' });
-                cargarListasAdmin();
-            }
-        }
+        async function eliminarProd(id) { if (confirm("¿Eliminar producto?")) { await fetch(`/api/productos/${id}`, { method: 'DELETE' }); cargarListasAdmin(); } }
 
         async function guardarFundacion() {
-            const nombre = document.getElementById('merma-nombre').value.trim();
-            const tipo_destino = document.getElementById('merma-tipo').value;
-            const contacto_whatsapp = document.getElementById('merma-wsp').value.trim();
-            const descripcion = document.getElementById('merma-desc').value.trim();
-
+            const nombre = document.getElementById('merma-nombre').value.trim(); const tipo_destino = document.getElementById('merma-tipo').value; const contacto_whatsapp = document.getElementById('merma-wsp').value.trim(); const descripcion = document.getElementById('merma-desc').value.trim();
             if (!nombre) { alert("Escribe el nombre del aliado"); return; }
-
-            const res = await fetch('/api/fundaciones', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre, tipo_destino, contacto_whatsapp, descripcion })
-            });
-            if (res.ok) {
-                alert("¡Aliado guardado con éxito! 💖");
-                document.getElementById('merma-nombre').value = '';
-                document.getElementById('merma-wsp').value = '';
-                document.getElementById('merma-desc').value = '';
-                cargarFundaciones();
-            }
+            const res = await fetch('/api/fundaciones', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre, tipo_destino, contacto_whatsapp, descripcion }) });
+            if (res.ok) { alert("¡Aliado guardado! 💖"); document.getElementById('merma-nombre').value = ''; document.getElementById('merma-wsp').value = ''; document.getElementById('merma-desc').value = ''; cargarFundaciones(); }
         }
 
         async function cargarFundaciones() {
             try {
-                const res = await fetch('/api/fundaciones');
-                const data = await res.json();
-                listaAliadosCache = data || [];
-                const tabla = document.getElementById('tabla-fundaciones');
-                tabla.innerHTML = '';
-
-                if (!data || data.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🌱 No hay aliados de merma registrados aún.</td></tr>`;
-                    return;
-                }
-
+                const res = await fetch('/api/fundaciones'); const data = await res.json(); listaAliadosCache = data || []; const tabla = document.getElementById('tabla-fundaciones'); tabla.innerHTML = '';
+                if (!data || data.length === 0) { tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🌱 No hay aliados registrados.</td></tr>`; return; }
                 data.forEach(f => {
                     const wspDigits = (f.contacto_whatsapp || '').replace(/[^0-9]/g, '');
-                    const wspBtn = wspDigits 
-                        ? `<a href="https://wa.me/${wspDigits}" target="_blank" class="badge bg-success bg-opacity-10 text-success text-decoration-none border border-success border-opacity-25 px-3 py-2 rounded-pill fw-bold"><i class="fa-brands fa-whatsapp me-1"></i>${f.contacto_whatsapp}</a>`
-                        : `<span class="text-muted small">Sin número</span>`;
-
-                    tabla.innerHTML += `
-                        <tr>
-                            <td class="ps-4">
-                                <strong class="text-dark d-block">${f.nombre}</strong>
-                                <small class="text-muted">${f.descripcion || 'Sin notas'}</small>
-                            </td>
-                            <td><span class="badge bg-danger bg-opacity-10 text-danger border px-2 py-1 rounded-pill">${f.tipo_destino}</span></td>
-                            <td>${wspBtn}</td>
-                            <td class="pe-4 text-end">
-                                <button class="cute-icon-btn me-1" onclick="abrirEditarFundacion(${f.id_fundacion})"><i class="fa-solid fa-pen small"></i></button>
-                                <button class="cute-icon-btn" onclick="eliminarFundacion(${f.id_fundacion})"><i class="fa-solid fa-trash-can small"></i></button>
-                            </td>
-                        </tr>
-                    `;
+                    const wspBtn = wspDigits ? `<a href="https://wa.me/${wspDigits}" target="_blank" class="badge bg-success bg-opacity-10 text-success text-decoration-none border border-success border-opacity-25 px-3 py-2 rounded-pill fw-bold"><i class="fa-brands fa-whatsapp me-1"></i>${f.contacto_whatsapp}</a>` : `<span class="text-muted small">Sin número</span>`;
+                    tabla.innerHTML += `<tr><td class="ps-4"><strong class="text-dark d-block">${f.nombre}</strong><small class="text-muted">${f.descripcion || 'Sin notas'}</small></td><td><span class="badge bg-danger bg-opacity-10 text-danger border px-2 py-1 rounded-pill">${f.tipo_destino}</span></td><td>${wspBtn}</td><td class="pe-4 text-end"><button class="cute-icon-btn me-1" onclick="abrirEditarFundacion(${f.id_fundacion})"><i class="fa-solid fa-pen small"></i></button><button class="cute-icon-btn" onclick="eliminarFundacion(${f.id_fundacion})"><i class="fa-solid fa-trash-can small"></i></button></td></tr>`;
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) {}
         }
-
         function abrirEditarFundacion(id) {
-            const aliado = listaAliadosCache.find(a => a.id_fundacion === id);
-            if (!aliado) return;
-            document.getElementById('edit-fund-id').value = aliado.id_fundacion;
-            document.getElementById('edit-fund-nombre').value = aliado.nombre;
-            document.getElementById('edit-fund-tipo').value = aliado.tipo_destino;
-            document.getElementById('edit-fund-wsp').value = aliado.contacto_whatsapp || '';
-            document.getElementById('edit-fund-desc').value = aliado.descripcion || '';
-            modalEdicionInstancia.show();
+            const aliado = listaAliadosCache.find(a => a.id_fundacion === id); if (!aliado) return;
+            document.getElementById('edit-fund-id').value = aliado.id_fundacion; document.getElementById('edit-fund-nombre').value = aliado.nombre; document.getElementById('edit-fund-tipo').value = aliado.tipo_destino; document.getElementById('edit-fund-wsp').value = aliado.contacto_whatsapp || ''; document.getElementById('edit-fund-desc').value = aliado.descripcion || ''; modalEdicionInstancia.show();
         }
-
         async function guardarEdicionFundacion() {
-            const id = document.getElementById('edit-fund-id').value;
-            const nombre = document.getElementById('edit-fund-nombre').value.trim();
-            const tipo_destino = document.getElementById('edit-fund-tipo').value;
-            const contacto_whatsapp = document.getElementById('edit-fund-wsp').value.trim();
-            const descripcion = document.getElementById('edit-fund-desc').value.trim();
-
+            const id = document.getElementById('edit-fund-id').value; const nombre = document.getElementById('edit-fund-nombre').value.trim(); const tipo_destino = document.getElementById('edit-fund-tipo').value; const contacto_whatsapp = document.getElementById('edit-fund-wsp').value.trim(); const descripcion = document.getElementById('edit-fund-desc').value.trim();
             if (!nombre) return;
-
-            const res = await fetch(`/api/fundaciones/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre, tipo_destino, contacto_whatsapp, descripcion })
-            });
-
-            if (res.ok) {
-                modalEdicionInstancia.hide();
-                cargarFundaciones();
-            }
+            const res = await fetch(`/api/fundaciones/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre, tipo_destino, contacto_whatsapp, descripcion }) });
+            if (res.ok) { modalEdicionInstancia.hide(); cargarFundaciones(); }
         }
-
-        async function eliminarFundacion(id) {
-            if (confirm("¿Eliminar aliado?")) {
-                await fetch(`/api/fundaciones/${id}`, { method: 'DELETE' });
-                cargarFundaciones();
-            }
-        }
-
-        async function forzarSemaforo() {
-            await fetch('/api/forzar_semaforo', { method: 'POST' });
-            cargarInventario();
-            alert('¡Semáforo recalculado con éxito! 🍓');
-        }
+        async function eliminarFundacion(id) { if (confirm("¿Eliminar aliado?")) { await fetch(`/api/fundaciones/${id}`, { method: 'DELETE' }); cargarFundaciones(); } }
+        async function forzarSemaforo() { await fetch('/api/forzar_semaforo', { method: 'POST' }); cargarInventario(); alert('¡Semáforo recalculado! 🍓'); }
     </script>
 </body>
 </html>

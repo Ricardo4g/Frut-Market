@@ -1,15 +1,13 @@
 import os
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from database import (inicializar_base_datos, inicializar_superusuario, login, 
-                      actualizar_semaforo, crear_categoria, actualizar_categoria, eliminar_categoria,
+                      actualizar_semaforo, crear_categoria, eliminar_categoria,
                       crear_producto, eliminar_producto, crear_lote, obtener_inventario, 
                       obtener_resumen_general, registrar_salida, get_db_connection)
 
 app = Flask(__name__)
-# Llave secreta para cifrar las cookies de sesión
 app.secret_key = os.environ.get('SECRET_KEY', 'frutmarket_secret_key_ultra_segura_2026')
 
-# Inicializar tablas y superusuario predeterminado
 inicializar_base_datos()
 inicializar_superusuario()
 
@@ -21,7 +19,6 @@ try:
 except Exception:
     pass
 
-# Helper para proteger endpoints de la API
 def verificar_autenticacion():
     return 'usuario' in session
 
@@ -29,7 +26,6 @@ def verificar_autenticacion():
 def inicio():
     return render_template('index.html')
 
-# Endpoint de autenticación
 @app.route('/api/login', methods=['POST'])
 def api_login():
     datos = request.get_json()
@@ -55,23 +51,19 @@ def api_check_session():
         return jsonify({"autenticado": True, "usuario": session.get('usuario')}), 200
     return jsonify({"autenticado": False}), 200
 
-# Endpoints protegidos
 @app.route('/api/inventario', methods=['GET'])
 def api_obtener_inventario():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     return jsonify({"inventario": obtener_inventario()}), 200
 
 @app.route('/api/resumen_general', methods=['GET'])
 def api_resumen_general():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     return jsonify({"resumen": obtener_resumen_general()}), 200
 
 @app.route('/api/categorias', methods=['GET'])
 def api_lista_categorias():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     cats = conn.execute("SELECT * FROM Categoria").fetchall()
     conn.close()
@@ -79,33 +71,27 @@ def api_lista_categorias():
 
 @app.route('/api/categorias', methods=['POST'])
 def api_crear_categoria():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('dias_vida_util'):
         return jsonify({"error": "Faltan campos"}), 400
-    id_cat = crear_categoria(datos['nombre'], datos['dias_vida_util'])
+    sensible = 1 if datos.get('sensible_al_clima') else 0
+    temp_umbral = float(datos.get('temp_umbral', 30.0))
+    id_cat = crear_categoria(datos['nombre'], datos['dias_vida_util'], sensible, temp_umbral)
     return jsonify({"mensaje": "Categoría creada", "id_categoria": id_cat}), 201
 
-@app.route('/api/categorias/<int:id_cat>', methods=['PUT', 'DELETE'])
+@app.route('/api/categorias/<int:id_cat>', methods=['DELETE'])
 def api_manejar_categoria(id_cat):
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
-    if request.method == 'PUT':
-        datos = request.get_json()
-        actualizar_categoria(id_cat, datos['nombre'], datos['dias_vida_util'])
-        return jsonify({"mensaje": "Categoría actualizada"}), 200
-    elif request.method == 'DELETE':
-        eliminar_categoria(id_cat)
-        return jsonify({"mensaje": "Categoría eliminada"}), 200
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
+    eliminar_categoria(id_cat)
+    return jsonify({"mensaje": "Categoría eliminada"}), 200
 
 @app.route('/api/productos', methods=['GET'])
 def api_lista_productos():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     prods = conn.execute("""
-        SELECT p.id_producto, p.nombre, p.id_categoria, c.nombre AS categoria 
+        SELECT p.id_producto, p.nombre, p.id_categoria, c.nombre AS categoria, p.temporada_demanda 
         FROM Producto p 
         LEFT JOIN Categoria c ON p.id_categoria = c.id_categoria
     """).fetchall()
@@ -114,25 +100,23 @@ def api_lista_productos():
 
 @app.route('/api/productos', methods=['POST'])
 def api_crear_producto():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('id_categoria'):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
-    id_prod = crear_producto(datos['nombre'], datos['id_categoria'], datos.get('stock_minimo', 5))
+    temporada_demanda = datos.get('temporada_demanda', 'Todo el año')
+    id_prod = crear_producto(datos['nombre'], datos['id_categoria'], temporada_demanda)
     return jsonify({"mensaje": "Producto creado", "id_producto": id_prod}), 201
 
 @app.route('/api/productos/<int:id_prod>', methods=['DELETE'])
 def api_eliminar_producto(id_prod):
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     eliminar_producto(id_prod)
     return jsonify({"mensaje": "Producto eliminado"}), 200
 
 @app.route('/api/lotes', methods=['POST'])
 def api_crear_lote():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('id_producto') or not datos.get('cantidad') or not datos.get('fecha_ingreso'):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
@@ -141,8 +125,7 @@ def api_crear_lote():
 
 @app.route('/api/salidas', methods=['POST'])
 def api_registrar_salida():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('id_producto') or not datos.get('cantidad'):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
@@ -153,18 +136,14 @@ def api_registrar_salida():
 
 @app.route('/api/fundaciones', methods=['GET', 'POST'])
 def api_fundaciones():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     try:
         if request.method == 'POST':
             d = request.get_json()
             if not d or not d.get('nombre'):
                 return jsonify({"error": "El nombre es obligatorio"}), 400
-            conn.execute(
-                "INSERT INTO Fundacion (nombre, contacto_whatsapp, tipo_destino, descripcion) VALUES (?, ?, ?, ?)",
-                (d.get('nombre', ''), d.get('contacto_whatsapp', ''), d.get('tipo_destino', 'Beneficencia'), d.get('descripcion', ''))
-            )
+            conn.execute("INSERT INTO Fundacion (nombre, contacto_whatsapp, tipo_destino, descripcion) VALUES (?, ?, ?, ?)", (d.get('nombre', ''), d.get('contacto_whatsapp', ''), d.get('tipo_destino', 'Beneficencia'), d.get('descripcion', '')))
             conn.commit()
             return jsonify({"mensaje": "Destino guardado con éxito"}), 201
         
@@ -177,27 +156,18 @@ def api_fundaciones():
 
 @app.route('/api/fundaciones/<int:id_fundacion>', methods=['PUT', 'DELETE'])
 def api_manejar_fundacion(id_fundacion):
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     conn = get_db_connection()
     try:
         if request.method == 'DELETE':
             conn.execute("DELETE FROM Fundacion WHERE id_fundacion = ?", (id_fundacion,))
             conn.commit()
-            return jsonify({"mensaje": "Aliado eliminado correctamente"}), 200
-        
+            return jsonify({"mensaje": "Aliado eliminado"}), 200
         elif request.method == 'PUT':
             d = request.get_json()
-            if not d or not d.get('nombre'):
-                return jsonify({"error": "El nombre es obligatorio"}), 400
-            conn.execute("""
-                UPDATE Fundacion 
-                SET nombre = ?, tipo_destino = ?, contacto_whatsapp = ?, descripcion = ? 
-                WHERE id_fundacion = ?
-            """, (d.get('nombre', ''), d.get('tipo_destino', 'Beneficencia'), 
-                  d.get('contacto_whatsapp', ''), d.get('descripcion', ''), id_fundacion))
+            conn.execute("UPDATE Fundacion SET nombre = ?, tipo_destino = ?, contacto_whatsapp = ?, descripcion = ? WHERE id_fundacion = ?", (d.get('nombre', ''), d.get('tipo_destino', 'Beneficencia'), d.get('contacto_whatsapp', ''), d.get('descripcion', ''), id_fundacion))
             conn.commit()
-            return jsonify({"mensaje": "Aliado actualizado correctamente"}), 200
+            return jsonify({"mensaje": "Aliado actualizado"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
@@ -205,10 +175,23 @@ def api_manejar_fundacion(id_fundacion):
 
 @app.route('/api/forzar_semaforo', methods=['POST'])
 def api_forzar_semaforo():
-    if not verificar_autenticacion():
-        return jsonify({"error": "No autorizado"}), 401
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     actualizar_semaforo()
     return jsonify({"mensaje": "Semáforo actualizado"}), 200
+
+@app.route('/api/temporada', methods=['GET'])
+def api_temporada():
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
+    import datetime
+    mes = datetime.date.today().month
+    if mes in [4, 5, 6]:
+        return jsonify({"temporada": "Calor / Primavera ☀️", "id_temp": "Calor", "alerta": "Alta", "mensaje": "Temperatura est. 32°C. Si el umbral de la fruta es superado, perderá vida útil rápidamente."})
+    elif mes in [7, 8, 9]:
+        return jsonify({"temporada": "Lluvias / Humedad 🌧️", "id_temp": "Lluvias", "alerta": "Media", "mensaje": "Temperatura est. 27°C. La humedad reduce 15% la vida de las frutas sensibles."})
+    elif mes in [12, 1, 2]:
+        return jsonify({"temporada": "Invierno / Frío ❄️", "id_temp": "Frío", "alerta": "Baja", "mensaje": "Temperatura est. 18°C. Excelentes condiciones de conservación."})
+    else:
+        return jsonify({"temporada": "Clima Templado 🍃", "id_temp": "Todo el año", "alerta": "Baja", "mensaje": "Temperatura est. 24°C. Condiciones estándar del almacén."})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

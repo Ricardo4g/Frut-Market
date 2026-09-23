@@ -3,7 +3,8 @@ import datetime
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
-DB_NAME = os.getenv('DB_PATH', 'inventario.db')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_NAME = os.getenv('DB_PATH', os.path.join(BASE_DIR, 'inventario.db'))
 
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -24,13 +25,16 @@ def inicializar_base_datos():
             CREATE TABLE IF NOT EXISTS Categoria (
                 id_categoria INTEGER PRIMARY KEY AUTOINCREMENT,
                 nombre TEXT NOT NULL,
-                dias_vida_util INTEGER NOT NULL
+                dias_vida_util INTEGER NOT NULL,
+                sensible_al_clima INTEGER DEFAULT 0,
+                temp_umbral REAL DEFAULT 30.0
             );
             CREATE TABLE IF NOT EXISTS Producto (
                 id_producto INTEGER PRIMARY KEY AUTOINCREMENT,
                 nombre TEXT NOT NULL,
                 id_categoria INTEGER,
                 stock_minimo INTEGER DEFAULT 0,
+                temporada_demanda TEXT DEFAULT 'Todo el año',
                 FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria) ON DELETE SET NULL
             );
             CREATE TABLE IF NOT EXISTS Lote (
@@ -59,17 +63,22 @@ def inicializar_base_datos():
             );
         """)
         
-        # Migración automática si la tabla Fundacion ya existía con el esquema anterior
-        cursor.execute("PRAGMA table_info(Fundacion)")
-        columnas = [col[1] for col in cursor.fetchall()]
-        if 'tipo_destino' not in columnas:
-            cursor.execute("ALTER TABLE Fundacion ADD COLUMN tipo_destino TEXT DEFAULT 'Beneficencia'")
-        if 'descripcion' not in columnas:
-            cursor.execute("ALTER TABLE Fundacion ADD COLUMN descripcion TEXT DEFAULT ''")
+        # Migraciones automáticas para nuevas columnas
+        cursor.execute("PRAGMA table_info(Categoria)")
+        columnas_cat = [col[1] for col in cursor.fetchall()]
+        if 'sensible_al_clima' not in columnas_cat:
+            cursor.execute("ALTER TABLE Categoria ADD COLUMN sensible_al_clima INTEGER DEFAULT 0")
+        if 'temp_umbral' not in columnas_cat:
+            cursor.execute("ALTER TABLE Categoria ADD COLUMN temp_umbral REAL DEFAULT 30.0")
+
+        cursor.execute("PRAGMA table_info(Producto)")
+        columnas_prod = [col[1] for col in cursor.fetchall()]
+        if 'temporada_demanda' not in columnas_prod:
+            cursor.execute("ALTER TABLE Producto ADD COLUMN temporada_demanda TEXT DEFAULT 'Todo el año'")
             
         conn.commit()
     except sqlite3.Error as e:
-        print(f"Error inicializando BD: {e}")
+        print(f"Error BD: {e}")
         conn.rollback()
     finally:
         conn.close()
@@ -106,7 +115,7 @@ def actualizar_semaforo():
     try:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT l.id_lote, l.fecha_ingreso, c.dias_vida_util, l.estado_semaforo
+            SELECT l.id_lote, l.fecha_ingreso, c.dias_vida_util, l.estado_semaforo, c.sensible_al_clima, c.temp_umbral
             FROM Lote l
             JOIN Producto p ON l.id_producto = p.id_producto
             JOIN Categoria c ON p.id_categoria = c.id_categoria
@@ -114,11 +123,27 @@ def actualizar_semaforo():
         """)
         lotes_activos = cursor.fetchall()
         hoy = datetime.date.today()
+        mes_actual = hoy.month
+        
+        # Estimación de Temperatura según temporada para Aguascalientes
+        if mes_actual in [4, 5, 6]: temp_estimada = 32.0
+        elif mes_actual in [7, 8, 9]: temp_estimada = 27.0
+        elif mes_actual in [12, 1, 2]: temp_estimada = 18.0
+        else: temp_estimada = 24.0
+
         lotes_a_actualizar = []
 
         for lote in lotes_activos:
+            dias_base = lote['dias_vida_util']
+            
+            # Regla: Si es sensible y la temperatura del mes supera su umbral máximo
+            if lote['sensible_al_clima'] == 1 and temp_estimada >= lote['temp_umbral']:
+                dias_base = int(dias_base * 0.70) # Pierde 30% de vida útil por exceso de calor
+            elif lote['sensible_al_clima'] == 1 and mes_actual in [7, 8]:
+                dias_base = int(dias_base * 0.85) # Pierde 15% por humedad de lluvias
+            
             fecha_ingreso = datetime.datetime.strptime(lote['fecha_ingreso'], '%Y-%m-%d').date()
-            dias_restantes = lote['dias_vida_util'] - (hoy - fecha_ingreso).days
+            dias_restantes = dias_base - (hoy - fecha_ingreso).days
             
             if dias_restantes <= 0: nuevo_estado = 'Negro'
             elif dias_restantes <= 2: nuevo_estado = 'Rojo'
@@ -134,22 +159,14 @@ def actualizar_semaforo():
     finally:
         conn.close()
 
-def crear_categoria(nombre, dias_vida_util):
+def crear_categoria(nombre, dias_vida_util, sensible_al_clima=0, temp_umbral=30.0):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Categoria (nombre, dias_vida_util) VALUES (?, ?)", (nombre, dias_vida_util))
+        cursor.execute("INSERT INTO Categoria (nombre, dias_vida_util, sensible_al_clima, temp_umbral) VALUES (?, ?, ?, ?)", 
+                       (nombre, dias_vida_util, sensible_al_clima, temp_umbral))
         conn.commit()
         return cursor.lastrowid
-    finally:
-        conn.close()
-
-def actualizar_categoria(id_cat, nombre, dias):
-    conn = get_db_connection()
-    try:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE Categoria SET nombre = ?, dias_vida_util = ? WHERE id_categoria = ?", (nombre, dias, id_cat))
-        conn.commit()
     finally:
         conn.close()
 
@@ -162,11 +179,12 @@ def eliminar_categoria(id_cat):
     finally:
         conn.close()
 
-def crear_producto(nombre, id_categoria, stock_minimo):
+def crear_producto(nombre, id_categoria, temporada_demanda):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Producto (nombre, id_categoria, stock_minimo) VALUES (?, ?, ?)", (nombre, id_categoria, stock_minimo))
+        cursor.execute("INSERT INTO Producto (nombre, id_categoria, temporada_demanda) VALUES (?, ?, ?)", 
+                       (nombre, id_categoria, temporada_demanda))
         conn.commit()
         return cursor.lastrowid
     finally:
@@ -216,7 +234,7 @@ def obtener_resumen_general():
         cursor = conn.cursor()
         cursor.execute("""
             SELECT p.id_producto, p.nombre AS producto, c.nombre AS categoria, 
-                   SUM(l.cantidad_actual) AS stock_total
+                   SUM(l.cantidad_actual) AS stock_total, p.temporada_demanda
             FROM Lote l
             JOIN Producto p ON l.id_producto = p.id_producto
             JOIN Categoria c ON p.id_categoria = c.id_categoria
@@ -241,8 +259,7 @@ def registrar_salida(id_producto, cantidad_requerida):
         cantidad_restante = float(cantidad_requerida)
         
         for lote in lotes:
-            if cantidad_restante <= 0:
-                break
+            if cantidad_restante <= 0: break
             id_lote = lote['id_lote']
             disponible = lote['cantidad_actual']
             
