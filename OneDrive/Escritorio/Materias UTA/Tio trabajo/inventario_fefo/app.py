@@ -74,10 +74,13 @@ def api_crear_categoria():
     if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('dias_vida_util'):
-        return jsonify({"error": "Faltan campos"}), 400
+        return jsonify({"error": "Faltan campos obligatorios"}), 400
+    
     sensible = 1 if datos.get('sensible_al_clima') else 0
-    temp_umbral = float(datos.get('temp_umbral', 30.0))
-    id_cat = crear_categoria(datos['nombre'], datos['dias_vida_util'], sensible, temp_umbral)
+    temp_umbral = float(datos.get('temp_umbral') or 30.0)
+    dias_tolerancia = int(datos.get('dias_tolerancia') or 3)
+    
+    id_cat = crear_categoria(datos['nombre'], datos['dias_vida_util'], sensible, temp_umbral, dias_tolerancia)
     return jsonify({"mensaje": "Categoría creada", "id_categoria": id_cat}), 201
 
 @app.route('/api/categorias/<int:id_cat>', methods=['DELETE'])
@@ -122,6 +125,19 @@ def api_crear_lote():
         return jsonify({"error": "Faltan campos obligatorios"}), 400
     id_lote = crear_lote(datos['id_producto'], datos['cantidad'], datos['fecha_ingreso'])
     return jsonify({"mensaje": "Lote registrado", "id_lote": id_lote}), 201
+
+@app.route('/api/lotes/<int:id_lote>', methods=['DELETE'])
+def api_eliminar_lote(id_lote):
+    if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
+    conn = get_db_connection()
+    try:
+        conn.execute("DELETE FROM Lote WHERE id_lote = ?", (id_lote,))
+        conn.commit()
+        return jsonify({"mensaje": "Lote enviado a merma/eliminado"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
 
 @app.route('/api/salidas', methods=['POST'])
 def api_registrar_salida():
@@ -182,16 +198,21 @@ def api_forzar_semaforo():
 @app.route('/api/temporada', methods=['GET'])
 def api_temporada():
     if not verificar_autenticacion(): return jsonify({"error": "No autorizado"}), 401
-    import datetime
-    mes = datetime.date.today().month
-    if mes in [4, 5, 6]:
-        return jsonify({"temporada": "Calor / Primavera ☀️", "id_temp": "Calor", "alerta": "Alta", "mensaje": "Temperatura est. 32°C. Si el umbral de la fruta es superado, perderá vida útil rápidamente."})
-    elif mes in [7, 8, 9]:
-        return jsonify({"temporada": "Lluvias / Humedad 🌧️", "id_temp": "Lluvias", "alerta": "Media", "mensaje": "Temperatura est. 27°C. La humedad reduce 15% la vida de las frutas sensibles."})
-    elif mes in [12, 1, 2]:
-        return jsonify({"temporada": "Invierno / Frío ❄️", "id_temp": "Frío", "alerta": "Baja", "mensaje": "Temperatura est. 18°C. Excelentes condiciones de conservación."})
-    else:
-        return jsonify({"temporada": "Clima Templado 🍃", "id_temp": "Todo el año", "alerta": "Baja", "mensaje": "Temperatura est. 24°C. Condiciones estándar del almacén."})
+    from database import obtener_temperatura_ags
+    
+    clima = obtener_temperatura_ags()
+    temp = clima['temperatura']
+    
+    alerta = "Alta" if temp >= 28 else "Media" if temp >= 24 else "Baja"
+    mensaje = f"Temperatura est. por hora local: {temp}°C. Las frutas con límite térmico menor a este valor se oxidan rápido."
+    
+    return jsonify({
+        "temporada": clima['temporada_nombre'], 
+        "id_temp": clima['id_temp'], 
+        "alerta": alerta, 
+        "mensaje": mensaje,
+        "temperatura": temp
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

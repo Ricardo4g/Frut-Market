@@ -26,11 +26,9 @@
         * { box-sizing: border-box; }
         body { background-color: var(--cute-bg); font-family: 'Quicksand', sans-serif; color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; }
 
-        /* OVERLAY DE LOGIN BLOQUEANTE */
         #login-overlay { position: fixed; inset: 0; background: rgba(253, 250, 247, 0.96); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1.2rem; }
         .login-card { background: #ffffff; border: 2px solid var(--border-soft); border-radius: 28px; padding: 2.5rem 2rem; max-width: 420px; width: 100%; box-shadow: 0 20px 40px -10px rgba(254, 215, 202, 0.6); text-align: center; }
 
-        /* LAYOUT PRINCIPAL RESPONSIVO */
         .cute-layout { display: flex; min-height: 100vh; width: 100%; }
         .cute-sidebar { width: 270px; background-color: var(--sidebar-bg); border-right: 2px solid var(--border-soft); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; padding: 1.8rem 1.2rem; z-index: 50; }
         .brand-cute { display: flex; align-items: center; gap: 12px; padding-bottom: 1.2rem; margin-bottom: 1.2rem; border-bottom: 2px dashed #fed7ca; }
@@ -77,7 +75,6 @@
 </head>
 <body>
 
-    <!-- OVERLAY DE INICIO DE SESIÓN SEGURO -->
     <div id="login-overlay">
         <div class="login-card">
             <img src="{{ url_for('static', filename='logo.jpeg') }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='logo.png') }}';" alt="Logo" class="brand-logo-img mb-3" style="width: 70px; height: 70px;">
@@ -86,11 +83,11 @@
             <div id="login-error" class="alert alert-danger py-2 small d-none rounded-3"></div>
             <div class="mb-3 text-start">
                 <label class="form-label small fw-bold">Usuario</label>
-                <input type="text" id="login-user" class="form-control" placeholder="" autofocus>
+                <input type="text" id="login-user" class="form-control" placeholder="Nombre de usuario" autofocus>
             </div>
             <div class="mb-4 text-start">
                 <label class="form-label small fw-bold">Contraseña</label>
-                <input type="password" id="login-pass" class="form-control" placeholder="">
+                <input type="password" id="login-pass" class="form-control" placeholder="Contraseña de acceso">
             </div>
             <button class="btn-cute-pink w-100 py-3" onclick="ejecutarLogin()">Iniciar Sesión Segura</button>
             <div class="mt-4 pt-3 border-top border-soft">
@@ -99,10 +96,7 @@
         </div>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL -->
     <div class="cute-layout">
-
-        <!-- Barra Lateral -->
         <aside class="cute-sidebar">
             <div class="brand-cute justify-content-between">
                 <div class="d-flex align-items-center gap-3">
@@ -129,7 +123,6 @@
             </div>
         </aside>
 
-        <!-- Contenido Central -->
         <main class="cute-main">
             <div class="cute-header">
                 <div>
@@ -142,12 +135,11 @@
             <!-- 1. RESUMEN GENERAL -->
             <section id="view-resumen" class="view-panel active">
                 
-                <!-- WIDGET DE TEMPORADA CLIMÁTICA -->
                 <div id="widget-temporada" class="alert d-flex align-items-center gap-3 mb-4 rounded-4 shadow-sm border-0" style="background: #fff5f2;">
                     <div id="widget-icono" style="font-size: 2.5rem;">📅</div>
                     <div>
                         <h5 class="fw-bold mb-1 text-dark" id="widget-titulo">Cargando temporada...</h5>
-                        <p class="mb-0 small fw-semibold text-muted" id="widget-mensaje">Analizando condiciones climáticas...</p>
+                        <p class="mb-0 small fw-semibold text-muted" id="widget-mensaje">Calculando el clima exacto según la hora del día...</p>
                     </div>
                 </div>
 
@@ -177,7 +169,9 @@
                                 <th>Categoría</th>
                                 <th>Fecha de Ingreso</th>
                                 <th>Cantidad</th>
-                                <th class="pe-4 text-end">Semáforo</th>
+                                <th>Vida Restante</th>
+                                <th>Semáforo</th>
+                                <th class="pe-4 text-end">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-inventario"></tbody>
@@ -199,7 +193,7 @@
                                 <select id="select-producto-ingreso" class="form-select"></select>
                             </div>
                             <div class="row g-3 mb-4">
-                                <div class="col-md-6"><label class="form-label small fw-bold">Cantidad</label><input type="number" id="ingreso-cantidad" class="form-control" placeholder="Ej. 100"></div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">Cantidad</label><input type="number" id="ingreso-cantidad" class="form-control" placeholder="Cantidad recibida"></div>
                                 <div class="col-md-6"><label class="form-label small fw-bold">Fecha de llegada</label><input type="date" id="ingreso-fecha" class="form-control"></div>
                             </div>
                             <button class="btn-cute-mint w-100 py-3" onclick="registrarIngresoFácil()">✨ Guardar Entrada</button>
@@ -223,7 +217,7 @@
                             </div>
                             <div class="mb-4">
                                 <label class="form-label small fw-bold">Cantidad requerida</label>
-                                <input type="number" id="salida-cantidad" class="form-control" placeholder="">
+                                <input type="number" id="salida-cantidad" class="form-control" placeholder="Cantidad a despachar">
                             </div>
                             <button class="btn-cute-peach w-100 py-3" onclick="despacharFácil()">🚀 Procesar Salida</button>
                         </div>
@@ -237,7 +231,7 @@
                     <div class="col-xl-4 col-lg-5">
                         <div class="marshmallow-card">
                             <h3 class="h6 fw-bold mb-3 text-dark">Nuevo Aliado / Destino</h3>
-                            <div class="mb-3"><label class="form-label small fw-bold">Nombre del Aliado</label><input type="text" id="merma-nombre" class="form-control" placeholder=""></div>
+                            <div class="mb-3"><label class="form-label small fw-bold">Nombre del Aliado</label><input type="text" id="merma-nombre" class="form-control" placeholder="Nombre completo del aliado"></div>
                             <div class="mb-3">
                                 <label class="form-label small fw-bold">Tipo</label>
                                 <select id="merma-tipo" class="form-select">
@@ -247,8 +241,8 @@
                                     <option value="Ganadería">Ganadería</option>
                                 </select>
                             </div>
-                            <div class="mb-3"><label class="form-label small fw-bold">WhatsApp</label><input type="text" id="merma-wsp" class="form-control" placeholder=""></div>
-                            <div class="mb-4"><label class="form-label small fw-bold">Notas</label><textarea id="merma-desc" class="form-control" rows="2"></textarea></div>
+                            <div class="mb-3"><label class="form-label small fw-bold">WhatsApp</label><input type="text" id="merma-wsp" class="form-control" placeholder="Número con código de país"></div>
+                            <div class="mb-4"><label class="form-label small fw-bold">Notas</label><textarea id="merma-desc" class="form-control" rows="2" placeholder="Detalles u observaciones relevantes"></textarea></div>
                             <button class="btn-cute-pink w-100" onclick="guardarFundacion()">Guardar Aliado</button>
                         </div>
                     </div>
@@ -268,34 +262,58 @@
                 <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="marshmallow-card">
-                            <h3 class="h6 fw-bold mb-3 text-dark">🏷️ Categorías & Sensibilidad Temp.</h3>
-                            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
-                                <input type="text" id="cat-nombre" class="form-control flex-grow-1" placeholder="Nombre">
-                                <input type="number" id="cat-dias" class="form-control" style="max-width: 90px;" placeholder="Días">
-                                <input type="number" id="cat-temp" class="form-control" style="max-width: 100px;" placeholder="Límite °C">
-                                <div class="form-check me-2">
-                                    <input class="form-check-input border-danger" type="checkbox" id="cat-sensible">
-                                    <label class="form-check-label small fw-bold text-danger" for="cat-sensible">Sensible</label>
+                            <h3 class="h6 fw-bold mb-3 text-dark">🏷 Categorías & Tolerancia</h3>
+                            
+                            <!-- Nuevo Grid Profesional para Categorías -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-muted mb-1">Nombre de Categoría</label>
+                                    <input type="text" id="cat-nombre" class="form-control" placeholder="Nombre descriptivo de la categoría">
                                 </div>
-                                <button class="btn-cute-pink px-4" onclick="crearCategoriaFácil()">Crear</button>
+                                <div class="col-4">
+                                    <label class="form-label small fw-bold text-muted mb-1">Días de vida</label>
+                                    <input type="number" id="cat-dias" class="form-control" placeholder="Totales">
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label small fw-bold text-muted mb-1">Tolerancia</label>
+                                    <input type="number" id="cat-tolerancia" class="form-control" placeholder="Días previos">
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label small fw-bold text-muted mb-1">Temp. Máxima</label>
+                                    <input type="number" id="cat-temp" class="form-control" placeholder="Grados °C">
+                                </div>
+                                <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+                                    <div class="form-check m-0">
+                                        <input class="form-check-input border-danger" type="checkbox" id="cat-sensible">
+                                        <label class="form-check-label small fw-bold text-danger" for="cat-sensible">Hacer Sensible al Clima</label>
+                                    </div>
+                                    <button class="btn-cute-pink px-4" onclick="crearCategoriaFácil()">Crear Categoría</button>
+                                </div>
                             </div>
-                            <ul id="lista-categorias-admin" class="list-group list-group-flush border rounded-4 small"></ul>
+                            
+                            <ul id="lista-categorias-admin" class="list-group list-group-flush border rounded-4 small mt-4"></ul>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="marshmallow-card">
                             <h3 class="h6 fw-bold mb-3 text-dark">🍎 Catálogo & Temporadas de Venta</h3>
-                            <input type="text" id="prod-nombre" class="form-control mb-2" placeholder="Nombre de la fruta">
-                            <select id="select-cat-producto" class="form-select mb-2"></select>
-                            
-                            <!-- Nuevo Select de Demanda -->
-                            <select id="prod-demanda" class="form-select mb-3 border-warning">
-                                <option value="Todo el año">Demanda Constante (Todo el año)</option>
-                                <option value="Calor">Alta Venta en Temporada Calor</option>
-                                <option value="Lluvias">Alta Venta en Temporada Lluvias</option>
-                                <option value="Frío">Alta Venta en Temporada Frío</option>
-                            </select>
-
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold text-muted mb-1">Nombre del producto</label>
+                                <input type="text" id="prod-nombre" class="form-control" placeholder="Nombre del producto a registrar">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold text-muted mb-1">Asignar categoría</label>
+                                <select id="select-cat-producto" class="form-select"></select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted mb-1">Demanda estacional</label>
+                                <select id="prod-demanda" class="form-select border-warning">
+                                    <option value="Todo el año">Demanda Constante (Todo el año)</option>
+                                    <option value="Calor">Alta Venta en Temporada Calor</option>
+                                    <option value="Lluvias">Alta Venta en Temporada Lluvias</option>
+                                    <option value="Frío">Alta Venta en Temporada Frío</option>
+                                </select>
+                            </div>
                             <button class="btn-cute-pink w-100 mb-3" onclick="crearProductoFácil()">Registrar Producto</button>
                             <ul id="lista-productos-admin" class="list-group list-group-flush border rounded-4 small"></ul>
                         </div>
@@ -307,7 +325,6 @@
 
     <!-- MODAL EDITAR ALIADO -->
     <div class="modal fade" id="modalEditarFundacion" tabindex="-1" aria-hidden="true">
-        <!-- Contenido del modal se mantiene igual -->
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow-lg p-3">
                 <div class="modal-header border-0 pb-0"><h5 class="modal-title h6 fw-bold text-dark">Editar Aliado ✏️</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
@@ -340,7 +357,7 @@
             'ingreso': { t: 'Entrada de Mercancía Nueva 📦', d: 'Registra lotes y programa su vida útil' },
             'salida': { t: 'Despacho Rápido 🚛', d: 'Descuento inteligente por lote más antiguo' },
             'merma': { t: 'Gestión de Merma & Economía Circular 🌱', d: 'Alianzas con bancos de alimentos, composta y ganado' },
-            'config': { t: 'Catálogo de Productos & Categorías 🏷️', d: 'Configura sensibilidad climática y demanda' }
+            'config': { t: 'Catálogo de Productos & Categorías 🏷️️', d: 'Configura sensibilidad climática y demanda' }
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -397,8 +414,8 @@
                 const res = await fetch('/api/temporada');
                 if (res.ok) {
                     const data = await res.json();
-                    temporadaActualId = data.id_temp; // Guardamos temporada actual para las etiquetas
-                    document.getElementById('widget-titulo').innerText = `Temporada: ${data.temporada}`;
+                    temporadaActualId = data.id_temp; 
+                    document.getElementById('widget-titulo').innerText = `Temporada: ${data.temporada} | ${data.temperatura}°C`;
                     document.getElementById('widget-mensaje').innerText = data.mensaje;
                     const alertDiv = document.getElementById('widget-temporada');
                     if (data.alerta === 'Alta') alertDiv.style.background = '#ffebe5';
@@ -418,7 +435,6 @@
                 if (!data.resumen || data.resumen.length === 0) { tabla.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted fw-bold">🧺 No hay existencias registradas.</td></tr>`; return; }
 
                 data.resumen.forEach(item => {
-                    // Etiqueta de Alta Demanda según el clima / calendario
                     let badgeDemanda = '';
                     if (item.temporada_demanda === temporadaActualId && temporadaActualId !== 'Todo el año') {
                         badgeDemanda = `<span class="badge bg-warning text-dark ms-2 rounded-pill shadow-sm"><i class="fa-solid fa-fire me-1"></i>Alta Venta</span>`;
@@ -443,15 +459,53 @@
                 const data = await res.json();
                 const tabla = document.getElementById('tabla-inventario');
                 tabla.innerHTML = '';
-                if (!data.inventario || data.inventario.length === 0) { tabla.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fw-bold">📦 No hay lotes.</td></tr>`; return; }
+                if (!data.inventario || data.inventario.length === 0) { tabla.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-bold">📦 No hay lotes.</td></tr>`; return; }
+                
                 data.inventario.forEach(item => {
-                    let badgeClass = 'gummy-optimo'; let label = 'Óptimo';
+                    let badgeClass = 'gummy-optimo'; 
+                    let label = 'Óptimo';
+                    let botonAccion = '<span class="text-muted small">-</span>';
+                    
+                    // Columna visual de días restantes
+                    let textoVida = '';
+                    if (item.dias_restantes > 0) textoVida = `<span class="text-success fw-bold">${item.dias_restantes} días</span>`;
+                    else if (item.dias_restantes === 0) textoVida = `<span class="text-warning fw-bold">Caduca hoy</span>`;
+                    else textoVida = `<span class="text-danger fw-bold">Venció hace ${Math.abs(item.dias_restantes)} días</span>`;
+
                     if (item.estado_semaforo === 'Amarillo') { badgeClass = 'gummy-amarillo'; label = 'Próximo a Vencer'; }
                     if (item.estado_semaforo === 'Rojo') { badgeClass = 'gummy-rojo'; label = 'Crítico'; }
-                    if (item.estado_semaforo === 'Negro') { badgeClass = 'gummy-negro'; label = 'Caducado'; }
-                    tabla.innerHTML += `<tr><td class="ps-4 fw-bold text-muted">#${item.id_lote}</td><td class="fw-bold text-dark">${item.producto}</td><td><span class="badge bg-light text-secondary border px-2 py-1">${item.categoria}</span></td><td class="text-muted">${item.fecha_ingreso}</td><td class="fw-bold fs-6">${item.cantidad_actual}</td><td class="pe-4 text-end"><span class="gummy-badge ${badgeClass}">${label}</span></td></tr>`;
+                    if (item.estado_semaforo === 'Negro') { 
+                        badgeClass = 'gummy-negro'; 
+                        label = 'Caducado'; 
+                        botonAccion = `<button class="btn btn-sm btn-outline-danger fw-bold rounded-pill" onclick="eliminarLoteCaducado(${item.id_lote})"><i class="fa-solid fa-trash-can me-1"></i> Desechar</button>`;
+                    }
+                    
+                    tabla.innerHTML += `
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted">#${item.id_lote}</td>
+                            <td class="fw-bold text-dark">${item.producto}</td>
+                            <td><span class="badge bg-light text-secondary border px-2 py-1">${item.categoria}</span></td>
+                            <td class="text-muted">${item.fecha_ingreso}</td>
+                            <td class="fw-bold fs-6">${item.cantidad_actual}</td>
+                            <td>${textoVida}</td>
+                            <td><span class="gummy-badge ${badgeClass}">${label}</span></td>
+                            <td class="pe-4 text-end">${botonAccion}</td>
+                        </tr>
+                    `;
                 });
             } catch (err) {}
+        }
+
+        async function eliminarLoteCaducado(id_lote) {
+            if (confirm("¿Estás seguro de desechar este lote caducado a la merma?")) {
+                const res = await fetch(`/api/lotes/${id_lote}`, { method: 'DELETE' });
+                if (res.ok) {
+                    cargarInventario(); 
+                    cargarResumenGeneral(); 
+                } else {
+                    alert("Hubo un error al intentar eliminar el lote.");
+                }
+            }
         }
 
         async function cargarSelects() {
@@ -460,7 +514,7 @@
                 let opts = ''; productos.forEach(p => opts += `<option value="${p.id_producto}">${p.nombre} (${p.categoria || 'Sin categoría'})</option>`);
                 document.getElementById('select-producto-ingreso').innerHTML = opts; document.getElementById('select-producto-salida').innerHTML = opts;
                 const resCat = await fetch('/api/categorias'); const cats = await resCat.json();
-                let optsC = ''; cats.forEach(c => optsC += `<option value="${c.id_categoria}">${c.nombre} (${c.dias_vida_util} días)</option>`);
+                let optsC = ''; cats.forEach(c => optsC += `<option value="${c.id_categoria}">${c.nombre} (${c.dias_vida_util} días totales)</option>`);
                 document.getElementById('select-cat-producto').innerHTML = optsC;
             } catch (err) {}
         }
@@ -471,7 +525,8 @@
                 let htmlC = '';
                 cats.forEach(c => {
                     let textSensible = c.sensible_al_clima ? `<span class="badge bg-danger ms-2"><i class="fa-solid fa-temperature-arrow-up me-1"></i> Límite: ${c.temp_umbral}°C</span>` : '';
-                    htmlC += `<li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft"><span><strong class="text-dark">${c.nombre}</strong> <span class="text-muted small">(${c.dias_vida_util} días)</span>${textSensible}</span><button class="cute-icon-btn" onclick="eliminarCat(${c.id_categoria})"><i class="fa-solid fa-trash-can small"></i></button></li>`;
+                    let textTolerancia = `<span class="badge bg-warning text-dark ms-1">Tolera ${c.dias_tolerancia}d</span>`;
+                    htmlC += `<li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3 border-soft"><span><strong class="text-dark">${c.nombre}</strong> <span class="text-muted small">(${c.dias_vida_util} días)</span>${textTolerancia}${textSensible}</span><button class="cute-icon-btn" onclick="eliminarCat(${c.id_categoria})"><i class="fa-solid fa-trash-can small"></i></button></li>`;
                 });
                 document.getElementById('lista-categorias-admin').innerHTML = htmlC;
                 document.getElementById('select-cat-producto').innerHTML = cats.map(c => `<option value="${c.id_categoria}">${c.nombre}</option>`).join('');
@@ -506,9 +561,11 @@
             const dias_vida_util = document.getElementById('cat-dias').value;
             const sensible = document.getElementById('cat-sensible').checked;
             const temp_umbral = document.getElementById('cat-temp').value || 30.0;
+            const dias_tolerancia = document.getElementById('cat-tolerancia').value || 3;
+            
             if (!nombre || !dias_vida_util) return;
-            await fetch('/api/categorias', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nombre, dias_vida_util: parseInt(dias_vida_util), sensible_al_clima: sensible, temp_umbral: temp_umbral }) });
-            document.getElementById('cat-nombre').value = ''; document.getElementById('cat-dias').value = ''; document.getElementById('cat-temp').value = ''; document.getElementById('cat-sensible').checked = false;
+            await fetch('/api/categorias', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nombre, dias_vida_util: parseInt(dias_vida_util), sensible_al_clima: sensible, temp_umbral: temp_umbral, dias_tolerancia: parseInt(dias_tolerancia) }) });
+            document.getElementById('cat-nombre').value = ''; document.getElementById('cat-dias').value = ''; document.getElementById('cat-temp').value = ''; document.getElementById('cat-tolerancia').value = ''; document.getElementById('cat-sensible').checked = false;
             cargarListasAdmin();
         }
 

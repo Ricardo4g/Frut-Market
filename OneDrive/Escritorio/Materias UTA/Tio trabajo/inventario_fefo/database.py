@@ -1,6 +1,7 @@
 import sqlite3
 import datetime
 import os
+import math
 from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -27,7 +28,8 @@ def inicializar_base_datos():
                 nombre TEXT NOT NULL,
                 dias_vida_util INTEGER NOT NULL,
                 sensible_al_clima INTEGER DEFAULT 0,
-                temp_umbral REAL DEFAULT 30.0
+                temp_umbral REAL DEFAULT 30.0,
+                dias_tolerancia INTEGER DEFAULT 3
             );
             CREATE TABLE IF NOT EXISTS Producto (
                 id_producto INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,13 +65,14 @@ def inicializar_base_datos():
             );
         """)
         
-        # Migraciones automáticas para nuevas columnas
         cursor.execute("PRAGMA table_info(Categoria)")
         columnas_cat = [col[1] for col in cursor.fetchall()]
         if 'sensible_al_clima' not in columnas_cat:
             cursor.execute("ALTER TABLE Categoria ADD COLUMN sensible_al_clima INTEGER DEFAULT 0")
         if 'temp_umbral' not in columnas_cat:
             cursor.execute("ALTER TABLE Categoria ADD COLUMN temp_umbral REAL DEFAULT 30.0")
+        if 'dias_tolerancia' not in columnas_cat:
+            cursor.execute("ALTER TABLE Categoria ADD COLUMN dias_tolerancia INTEGER DEFAULT 3")
 
         cursor.execute("PRAGMA table_info(Producto)")
         columnas_prod = [col[1] for col in cursor.fetchall()]
@@ -110,45 +113,71 @@ def login(username, password):
     finally:
         conn.close()
 
+def obtener_temperatura_ags():
+    ahora = datetime.datetime.utcnow() - datetime.timedelta(hours=6)
+    mes = ahora.month
+    hora = ahora.hour
+
+    if mes in [4, 5, 6]:
+        t_min, t_max, t_name, t_id = 14, 34, "Calor / Primavera ☀️", "Calor"
+    elif mes in [7, 8, 9]:
+        t_min, t_max, t_name, t_id = 14, 27, "Lluvias / Humedad 🌧️", "Lluvias"
+    elif mes in [12, 1, 2]:
+        t_min, t_max, t_name, t_id = 5, 23, "Invierno / Frío ❄️", "Frío"
+    else:
+        t_min, t_max, t_name, t_id = 10, 28, "Templado 🍃", "Todo el año"
+        
+    temp_media = (t_max + t_min) / 2.0
+    amplitud = (t_max - t_min) / 2.0
+    temp_actual = temp_media + amplitud * math.sin((hora - 10) * math.pi / 12)
+    
+    return {
+        "temperatura": round(temp_actual, 1),
+        "temporada_nombre": t_name,
+        "id_temp": t_id
+    }
+
 def actualizar_semaforo():
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT l.id_lote, l.fecha_ingreso, c.dias_vida_util, l.estado_semaforo, c.sensible_al_clima, c.temp_umbral
+            SELECT l.id_lote, l.fecha_ingreso, c.dias_vida_util, l.estado_semaforo, c.sensible_al_clima, c.temp_umbral, c.dias_tolerancia
             FROM Lote l
             JOIN Producto p ON l.id_producto = p.id_producto
             JOIN Categoria c ON p.id_categoria = c.id_categoria
             WHERE l.cantidad_actual > 0 AND l.estado_semaforo != 'Negro'
         """)
         lotes_activos = cursor.fetchall()
-        hoy = datetime.date.today()
-        mes_actual = hoy.month
         
-        # Estimación de Temperatura según temporada para Aguascalientes
-        if mes_actual in [4, 5, 6]: temp_estimada = 32.0
-        elif mes_actual in [7, 8, 9]: temp_estimada = 27.0
-        elif mes_actual in [12, 1, 2]: temp_estimada = 18.0
-        else: temp_estimada = 24.0
+        hoy = (datetime.datetime.utcnow() - datetime.timedelta(hours=6)).date()
+        clima_actual = obtener_temperatura_ags()
+        temp_estimada = clima_actual['temperatura']
+        mes_actual = hoy.month
 
         lotes_a_actualizar = []
 
         for lote in lotes_activos:
             dias_base = lote['dias_vida_util']
+            tolerancia = lote['dias_tolerancia'] if lote['dias_tolerancia'] else 3
             
-            # Regla: Si es sensible y la temperatura del mes supera su umbral máximo
             if lote['sensible_al_clima'] == 1 and temp_estimada >= lote['temp_umbral']:
-                dias_base = int(dias_base * 0.70) # Pierde 30% de vida útil por exceso de calor
+                dias_base = int(dias_base * 0.70)
             elif lote['sensible_al_clima'] == 1 and mes_actual in [7, 8]:
-                dias_base = int(dias_base * 0.85) # Pierde 15% por humedad de lluvias
+                dias_base = int(dias_base * 0.85) 
             
             fecha_ingreso = datetime.datetime.strptime(lote['fecha_ingreso'], '%Y-%m-%d').date()
-            dias_restantes = dias_base - (hoy - fecha_ingreso).days
+            dias_pasados = (hoy - fecha_ingreso).days
+            dias_restantes = dias_base - dias_pasados
             
-            if dias_restantes <= 0: nuevo_estado = 'Negro'
-            elif dias_restantes <= 2: nuevo_estado = 'Rojo'
-            elif dias_restantes <= 5: nuevo_estado = 'Amarillo'
-            else: nuevo_estado = 'Verde'
+            if dias_restantes <= 0:
+                nuevo_estado = 'Negro'
+            elif dias_restantes <= 1:
+                nuevo_estado = 'Rojo'
+            elif dias_restantes <= tolerancia:
+                nuevo_estado = 'Amarillo'
+            else:
+                nuevo_estado = 'Verde'
                 
             if nuevo_estado != lote['estado_semaforo']:
                 lotes_a_actualizar.append((nuevo_estado, lote['id_lote']))
@@ -159,12 +188,12 @@ def actualizar_semaforo():
     finally:
         conn.close()
 
-def crear_categoria(nombre, dias_vida_util, sensible_al_clima=0, temp_umbral=30.0):
+def crear_categoria(nombre, dias_vida_util, sensible_al_clima=0, temp_umbral=30.0, dias_tolerancia=3):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Categoria (nombre, dias_vida_util, sensible_al_clima, temp_umbral) VALUES (?, ?, ?, ?)", 
-                       (nombre, dias_vida_util, sensible_al_clima, temp_umbral))
+        cursor.execute("INSERT INTO Categoria (nombre, dias_vida_util, sensible_al_clima, temp_umbral, dias_tolerancia) VALUES (?, ?, ?, ?, ?)", 
+                       (nombre, dias_vida_util, sensible_al_clima, temp_umbral, dias_tolerancia))
         conn.commit()
         return cursor.lastrowid
     finally:
@@ -207,28 +236,54 @@ def crear_lote(id_producto, cantidad, fecha_ingreso):
         id_lote = cursor.lastrowid
         cursor.execute("INSERT INTO Movimiento (id_lote, tipo_movimiento, cantidad) VALUES (?, 'Entrada', ?)", (id_lote, cantidad))
         conn.commit()
-        return id_lote
     finally:
         conn.close()
+    
+    actualizar_semaforo()
+    return id_lote
 
 def obtener_inventario():
+    actualizar_semaforo()
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT l.id_lote, p.nombre AS producto, c.nombre AS categoria, 
-                   l.cantidad_actual, l.fecha_ingreso, l.estado_semaforo
+                   l.cantidad_actual, l.fecha_ingreso, l.estado_semaforo,
+                   c.dias_vida_util, c.sensible_al_clima, c.temp_umbral
             FROM Lote l
             JOIN Producto p ON l.id_producto = p.id_producto
             JOIN Categoria c ON p.id_categoria = c.id_categoria
             WHERE l.cantidad_actual > 0
             ORDER BY l.fecha_ingreso ASC
         """)
-        return [dict(row) for row in cursor.fetchall()]
+        
+        resultados = []
+        hoy = (datetime.datetime.utcnow() - datetime.timedelta(hours=6)).date()
+        clima_actual = obtener_temperatura_ags()
+        temp_estimada = clima_actual['temperatura']
+        mes_actual = hoy.month
+
+        for row in cursor.fetchall():
+            item = dict(row)
+            dias_base = item['dias_vida_util']
+            
+            if item['sensible_al_clima'] == 1 and temp_estimada >= item['temp_umbral']:
+                dias_base = int(dias_base * 0.70)
+            elif item['sensible_al_clima'] == 1 and mes_actual in [7, 8]:
+                dias_base = int(dias_base * 0.85) 
+            
+            fecha_ingreso = datetime.datetime.strptime(item['fecha_ingreso'], '%Y-%m-%d').date()
+            dias_pasados = (hoy - fecha_ingreso).days
+            item['dias_restantes'] = dias_base - dias_pasados
+            resultados.append(item)
+            
+        return resultados
     finally:
         conn.close()
 
 def obtener_resumen_general():
+    actualizar_semaforo()
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
