@@ -11,13 +11,14 @@ app.secret_key = os.environ.get('SECRET_KEY', 'frutmarket_secret_key_ultra_segur
 inicializar_base_datos()
 inicializar_superusuario()
 
-try:
-    from apscheduler.schedulers.background import BackgroundScheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(actualizar_semaforo, 'cron', hour=0, minute=0)
-    scheduler.start()
-except Exception:
-    pass
+if os.environ.get('DESACTIVAR_SCHEDULER') != '1':
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(actualizar_semaforo, 'cron', hour=0, minute=0)
+        scheduler.start()
+    except Exception:
+        pass
 
 def verificar_autenticacion():
     return 'usuario' in session

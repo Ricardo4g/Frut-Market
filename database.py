@@ -137,6 +137,24 @@ def obtener_temperatura_ags():
         "id_temp": t_id
     }
 
+def calcular_dias_vida(dias_vida_util, sensible_al_clima, temp_umbral, temp_estimada, mes):
+    """Ajusta la vida útil de una categoría según el clima estimado."""
+    if sensible_al_clima == 1 and temp_estimada >= temp_umbral:
+        return int(dias_vida_util * 0.70)
+    if sensible_al_clima == 1 and mes in [7, 8]:
+        return int(dias_vida_util * 0.85)
+    return dias_vida_util
+
+def calcular_estado_semaforo(dias_restantes, tolerancia=3):
+    """Devuelve el color del semáforo FEFO según los días restantes."""
+    if dias_restantes <= 0:
+        return 'Negro'
+    if dias_restantes <= 1:
+        return 'Rojo'
+    if dias_restantes <= tolerancia:
+        return 'Amarillo'
+    return 'Verde'
+
 def actualizar_semaforo():
     conn = get_db_connection()
     try:
@@ -158,27 +176,15 @@ def actualizar_semaforo():
         lotes_a_actualizar = []
 
         for lote in lotes_activos:
-            dias_base = lote['dias_vida_util']
             tolerancia = lote['dias_tolerancia'] if lote['dias_tolerancia'] else 3
-            
-            if lote['sensible_al_clima'] == 1 and temp_estimada >= lote['temp_umbral']:
-                dias_base = int(dias_base * 0.70)
-            elif lote['sensible_al_clima'] == 1 and mes_actual in [7, 8]:
-                dias_base = int(dias_base * 0.85) 
-            
+            dias_base = calcular_dias_vida(lote['dias_vida_util'], lote['sensible_al_clima'],
+                                           lote['temp_umbral'], temp_estimada, mes_actual)
+
             fecha_ingreso = datetime.datetime.strptime(lote['fecha_ingreso'], '%Y-%m-%d').date()
             dias_pasados = (hoy - fecha_ingreso).days
-            dias_restantes = dias_base - dias_pasados
-            
-            if dias_restantes <= 0:
-                nuevo_estado = 'Negro'
-            elif dias_restantes <= 1:
-                nuevo_estado = 'Rojo'
-            elif dias_restantes <= tolerancia:
-                nuevo_estado = 'Amarillo'
-            else:
-                nuevo_estado = 'Verde'
-                
+            nuevo_estado = calcular_estado_semaforo(dias_base - dias_pasados, tolerancia)
+
+
             if nuevo_estado != lote['estado_semaforo']:
                 lotes_a_actualizar.append((nuevo_estado, lote['id_lote']))
         
@@ -266,13 +272,9 @@ def obtener_inventario():
 
         for row in cursor.fetchall():
             item = dict(row)
-            dias_base = item['dias_vida_util']
-            
-            if item['sensible_al_clima'] == 1 and temp_estimada >= item['temp_umbral']:
-                dias_base = int(dias_base * 0.70)
-            elif item['sensible_al_clima'] == 1 and mes_actual in [7, 8]:
-                dias_base = int(dias_base * 0.85) 
-            
+            dias_base = calcular_dias_vida(item['dias_vida_util'], item['sensible_al_clima'],
+                                           item['temp_umbral'], temp_estimada, mes_actual)
+
             fecha_ingreso = datetime.datetime.strptime(item['fecha_ingreso'], '%Y-%m-%d').date()
             dias_pasados = (hoy - fecha_ingreso).days
             item['dias_restantes'] = dias_base - dias_pasados
