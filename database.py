@@ -147,7 +147,7 @@ def calcular_dias_vida(dias_vida_util, sensible_al_clima, temp_umbral, temp_esti
 
 def calcular_estado_semaforo(dias_restantes, tolerancia=3):
     """Devuelve el color del semáforo FEFO según los días restantes."""
-    if dias_restantes < 0:
+    if dias_restantes <= 0:
         return 'Negro'
     if dias_restantes <= 1:
         return 'Rojo'
