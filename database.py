@@ -155,7 +155,18 @@ def calcular_estado_semaforo(dias_restantes, tolerancia=3):
         return 'Amarillo'
     return 'Verde'
 
+_ultimo_semaforo = None
+
+
+def actualizar_semaforo_si_hace_falta():
+    """Recalcula el semáforo solo una vez por día en las consultas (antes era en cada petición)."""
+    hoy = (datetime.datetime.utcnow() - datetime.timedelta(hours=6)).date()
+    if _ultimo_semaforo != hoy:
+        actualizar_semaforo()
+
+
 def actualizar_semaforo():
+    global _ultimo_semaforo
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
@@ -191,6 +202,7 @@ def actualizar_semaforo():
         if lotes_a_actualizar:
             cursor.executemany("UPDATE Lote SET estado_semaforo = ? WHERE id_lote = ?", lotes_a_actualizar)
             conn.commit()
+        _ultimo_semaforo = hoy
     finally:
         conn.close()
 
@@ -249,7 +261,7 @@ def crear_lote(id_producto, cantidad, fecha_ingreso):
     return id_lote
 
 def obtener_inventario():
-    actualizar_semaforo()
+    actualizar_semaforo_si_hace_falta()
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
@@ -285,7 +297,7 @@ def obtener_inventario():
         conn.close()
 
 def obtener_resumen_general():
-    actualizar_semaforo()
+    actualizar_semaforo_si_hace_falta()
     conn = get_db_connection()
     try:
         cursor = conn.cursor()

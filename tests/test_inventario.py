@@ -35,3 +35,12 @@ def test_salida_sin_stock_no_despacha_nada():
     id_cat = database.crear_categoria('Vacía prueba', 10)
     id_prod = database.crear_producto('Sin stock', id_cat, 'Todo el año')
     assert database.registrar_salida(id_prod, 5) == 0
+
+
+def test_semaforo_se_recalcula_una_vez_por_dia(monkeypatch):
+    database.actualizar_semaforo()
+    llamadas = []
+    monkeypatch.setattr(database, 'actualizar_semaforo', lambda: llamadas.append(1))
+    database.obtener_inventario()
+    database.obtener_resumen_general()
+    assert llamadas == []

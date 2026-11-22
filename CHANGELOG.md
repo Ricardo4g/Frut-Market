@@ -1,5 +1,14 @@
 # Historial de versiones
 
+## [1.2.0] - 2026-11-22
+Mejoras de rendimiento basadas en Lighthouse y k6.
+
+- Logo optimizado: de `logo.jpeg` (1254×1254, 87 KB) a `logo.webp` (160×160, 4 KB) y favicon de 2 KB.
+- Las hojas de estilo de Font Awesome y Google Fonts se cargan sin bloquear el primer render.
+- El JavaScript de Bootstrap se carga con `defer`.
+- El semáforo FEFO se recalcula una vez al día en las consultas, en lugar de en cada petición
+  (sigue recalculándose al registrar lotes, con el botón "Recalcular Semáforo" y a medianoche).
+
 ## [1.1.0] - 2026-11-22
 Actualización con monitoreo.
 
