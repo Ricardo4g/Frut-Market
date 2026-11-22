@@ -95,4 +95,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except urllib.error.HTTPError as e:
+        detalle = e.read().decode("utf-8", "replace")[:300].replace("
+", " ")
+        print(f"::error::PythonAnywhere respondió {e.code} en {e.url}: {detalle}")
+        sys.exit(1)
+    except SystemExit as e:
+        if e.code not in (0, None):
+            print(f"::error::{e.code}")
+        raise
