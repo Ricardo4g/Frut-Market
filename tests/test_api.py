@@ -26,3 +26,10 @@ def test_health_responde_ok(cliente):
     assert datos['status'] == 'ok'
     assert datos['base_datos'] == 'ok'
     assert datos['version']
+
+
+def test_respuestas_incluyen_tiempo_y_version(cliente):
+    r = cliente.get('/health')
+    assert r.headers['X-Response-Time'].endswith('ms')
+    assert r.headers['X-App-Version'] == r.get_json()['version']
+    assert 'promedio_ms' in r.get_json()

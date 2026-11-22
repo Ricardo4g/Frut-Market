@@ -1,6 +1,7 @@
+import logging
 import os
 import time
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, g
 from database import (inicializar_base_datos, inicializar_superusuario, login, 
                       actualizar_semaforo, crear_categoria, eliminar_categoria,
                       crear_producto, eliminar_producto, crear_lote, obtener_inventario, 
@@ -13,6 +14,12 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(BASE_DIR, 'VERSION'), encoding='utf-8') as f:
     APP_VERSION = f.read().strip()
 INICIO = time.time()
+
+# Monitoreo: cada petición se registra en el log del servidor con su tiempo de respuesta
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+log = logging.getLogger('frutmarket')
+LENTA_MS = 1000
+METRICAS = {"peticiones": 0, "errores_5xx": 0, "lentas": 0, "total_ms": 0.0}
 
 inicializar_base_datos()
 inicializar_superusuario()
@@ -29,6 +36,36 @@ if os.environ.get('DESACTIVAR_SCHEDULER') != '1':
     except Exception:
         pass
 
+@app.before_request
+def iniciar_cronometro():
+    g.inicio = time.perf_counter()
+
+
+@app.after_request
+def registrar_peticion(respuesta):
+    ms = (time.perf_counter() - g.get('inicio', time.perf_counter())) * 1000
+    respuesta.headers['X-Response-Time'] = f"{ms:.1f}ms"
+    respuesta.headers['X-App-Version'] = APP_VERSION
+    if request.path.startswith('/static/'):
+        return respuesta
+    METRICAS["peticiones"] += 1
+    METRICAS["total_ms"] += ms
+    if respuesta.status_code >= 500:
+        METRICAS["errores_5xx"] += 1
+    nivel = logging.INFO
+    if ms > LENTA_MS:
+        METRICAS["lentas"] += 1
+        nivel = logging.WARNING
+    log.log(nivel, "%s %s %s %.1fms", request.method, request.path, respuesta.status_code, ms)
+    return respuesta
+
+
+@app.errorhandler(500)
+def error_interno(e):
+    log.exception("Error 500 en %s %s", request.method, request.path)
+    return jsonify({"error": "Error interno del servidor"}), 500
+
+
 def verificar_autenticacion():
     return 'usuario' in session
 
@@ -42,12 +79,16 @@ def health():
     except Exception as e:
         bd = f"error: {e}"
     estado = 200 if bd == "ok" else 503
+    total = METRICAS["peticiones"]
     return jsonify({"status": "ok" if estado == 200 else "error", "version": APP_VERSION,
-                    "base_datos": bd, "uptime_s": round(time.time() - INICIO)}), estado
+                    "base_datos": bd, "uptime_s": round(time.time() - INICIO),
+                    "peticiones": total, "errores_5xx": METRICAS["errores_5xx"],
+                    "peticiones_lentas": METRICAS["lentas"],
+                    "promedio_ms": round(METRICAS["total_ms"] / total, 1) if total else 0}), estado
 
 @app.route('/')
 def inicio():
-    return render_template('index.html')
+    return render_template('index.html', version=APP_VERSION)
 
 @app.route('/api/login', methods=['POST'])
 def api_login():

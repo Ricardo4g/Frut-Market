@@ -1,0 +1,36 @@
+name: Monitoreo de disponibilidad
+
+# Revisa cada 30 minutos que la aplicación publicada responda
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Revisar /health y la página principal
+      run: |
+        URL=https://frutmarket.pythonanywhere.com
+        echo "| Ruta | Código | Tiempo total (s) |" >> $GITHUB_STEP_SUMMARY
+        echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+        fallo=0
+        for ruta in /health /; do
+          linea=$(curl -s -o /dev/null -w "%{http_code} %{time_total}" --max-time 30 "$URL$ruta" || echo "000 30")
+          codigo=${linea% *}; tiempo=${linea#* }
+          echo "| $ruta | $codigo | $tiempo |" >> $GITHUB_STEP_SUMMARY
+          echo "$ruta -> $codigo en ${tiempo}s"
+          if [ "$codigo" != "200" ]; then
+            echo "::error::$ruta respondió $codigo"
+            fallo=1
+          elif awk "BEGIN{exit !($tiempo > 2)}"; then
+            echo "::warning::$ruta tardó ${tiempo}s (más de 2 s)"
+          fi
+        done
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo '```json' >> $GITHUB_STEP_SUMMARY
+        curl -s --max-time 30 "$URL/health" >> $GITHUB_STEP_SUMMARY || true
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        exit $fallo
