@@ -4,6 +4,8 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 const BASE = __ENV.BASE || 'https://frutmarket.pythonanywhere.com';
+// Logo que usa la página: logo.jpeg hasta v1.1.0, logo.webp desde v1.2.0
+const LOGO = __ENV.LOGO || '/static/logo.webp';
 
 export const options = {
   // Sube a 10 usuarios simultáneos, se mantiene y baja (unos 50 segundos en total)
@@ -35,7 +37,7 @@ export default function (datos) {
   const pagina = http.get(`${BASE}/`, { tags: { nombre: 'pagina_principal' } });
   check(pagina, { 'página principal 200': (r) => r.status === 200 });
 
-  const logo = http.get(`${BASE}/static/logo.jpeg`, { tags: { nombre: 'logo' } });
+  const logo = http.get(`${BASE}${LOGO}`, { tags: { nombre: 'logo' } });
   check(logo, { 'logo 200': (r) => r.status === 200 });
 
   if (datos.conSesion) {
