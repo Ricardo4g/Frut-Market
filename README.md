@@ -28,6 +28,8 @@ de cada lote y se ajusta según el clima estimado de Aguascalientes.
 | flake8 | Verificación de sintaxis |
 | Git y GitHub | Control de versiones |
 | GitHub Actions | Integración continua |
+| Render | Despliegue continuo (hosting) |
+| Gunicorn | Servidor de producción |
 
 ## Estructura del proyecto
 ```
@@ -63,3 +65,16 @@ python -m pytest -v
 Cada `push` al repositorio ejecuta el flujo **Integracion Continua FEFO** en GitHub
 Actions, que instala las dependencias, verifica la sintaxis con flake8 y ejecuta las
 pruebas con pytest. Si alguna validación falla, el flujo se marca en rojo.
+
+## Despliegue continuo (Render)
+La aplicación se publica en Render con el archivo [`render.yaml`](render.yaml):
+
+* **Build:** `pip install -r requirements.txt`
+* **Start:** `gunicorn app:app --workers 1 --threads 4`
+* **Health check:** `/health` (responde la versión y si la base de datos está disponible)
+* **Auto-deploy:** `checksPass`, es decir, cada push a `main` se publica solo si GitHub Actions termina en verde.
+* **Variables:** `SECRET_KEY` (generada por Render), `PYTHON_VERSION` y `CARGAR_DEMO=1` (carga datos de ejemplo).
+
+Las versiones se marcan con etiquetas de Git (`v1.0.0`, `v1.1.0`, …) y se describen en [CHANGELOG.md](CHANGELOG.md).
+
+> Nota: en el plan gratuito de Render el disco es temporal, así que la base SQLite se reinicia en cada despliegue y el servicio se suspende tras 15 minutos sin visitas.

@@ -17,3 +17,12 @@ def test_crear_categoria_y_consultar_inventario(cliente_autenticado):
     r = cliente_autenticado.get('/api/inventario')
     assert r.status_code == 200
     assert 'inventario' in r.get_json()
+
+
+def test_health_responde_ok(cliente):
+    r = cliente.get('/health')
+    assert r.status_code == 200
+    datos = r.get_json()
+    assert datos['status'] == 'ok'
+    assert datos['base_datos'] == 'ok'
+    assert datos['version']

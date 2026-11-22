@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: frut-market
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --bind 0.0.0.0:$PORT --access-logfile -
+    healthCheckPath: /health
+    # Solo despliega cuando GitHub Actions (flake8 + pytest) termina en verde
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CARGAR_DEMO
+        value: "1"

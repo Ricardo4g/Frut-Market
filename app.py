@@ -1,4 +1,5 @@
 import os
+import time
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from database import (inicializar_base_datos, inicializar_superusuario, login, 
                       actualizar_semaforo, crear_categoria, eliminar_categoria,
@@ -8,8 +9,16 @@ from database import (inicializar_base_datos, inicializar_superusuario, login,
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'frutmarket_secret_key_ultra_segura_2026')
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(BASE_DIR, 'VERSION'), encoding='utf-8') as f:
+    APP_VERSION = f.read().strip()
+INICIO = time.time()
+
 inicializar_base_datos()
 inicializar_superusuario()
+if os.environ.get('CARGAR_DEMO') == '1':
+    from demo_data import cargar_datos_demo
+    cargar_datos_demo()
 
 if os.environ.get('DESACTIVAR_SCHEDULER') != '1':
     try:
@@ -22,6 +31,19 @@ if os.environ.get('DESACTIVAR_SCHEDULER') != '1':
 
 def verificar_autenticacion():
     return 'usuario' in session
+
+@app.route('/health')
+def health():
+    try:
+        conn = get_db_connection()
+        conn.execute("SELECT 1").fetchone()
+        conn.close()
+        bd = "ok"
+    except Exception as e:
+        bd = f"error: {e}"
+    estado = 200 if bd == "ok" else 503
+    return jsonify({"status": "ok" if estado == 200 else "error", "version": APP_VERSION,
+                    "base_datos": bd, "uptime_s": round(time.time() - INICIO)}), estado
 
 @app.route('/')
 def inicio():
@@ -216,4 +238,4 @@ def api_temporada():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=int(os.environ.get('PORT', 5000)))
