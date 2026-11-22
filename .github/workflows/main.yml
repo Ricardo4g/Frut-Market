@@ -31,3 +31,27 @@ jobs:
     - name: Ejecutar pruebas automatizadas
       run: |
         python -m pytest -v
+
+  desplegar:
+    # Despliegue continuo: solo corre en main y solo si "validar" terminó en verde
+    needs: validar
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: produccion
+      url: https://frutmarket.pythonanywhere.com
+    steps:
+    - name: Obtener código
+      uses: actions/checkout@v4
+
+    - name: Preparar entorno de Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Publicar en PythonAnywhere y verificar /health
+      env:
+        PA_API_TOKEN: ${{ secrets.PA_API_TOKEN }}
+        PA_USERNAME: FrutMarket
+        PA_DOMAIN: frutmarket.pythonanywhere.com
+      run: python scripts/deploy_pythonanywhere.py

@@ -28,8 +28,7 @@ de cada lote y se ajusta según el clima estimado de Aguascalientes.
 | flake8 | Verificación de sintaxis |
 | Git y GitHub | Control de versiones |
 | GitHub Actions | Integración continua |
-| Render | Despliegue continuo (hosting) |
-| Gunicorn | Servidor de producción |
+| PythonAnywhere | Hosting de la aplicación publicada |
 
 ## Estructura del proyecto
 ```
@@ -66,15 +65,15 @@ Cada `push` al repositorio ejecuta el flujo **Integracion Continua FEFO** en Git
 Actions, que instala las dependencias, verifica la sintaxis con flake8 y ejecuta las
 pruebas con pytest. Si alguna validación falla, el flujo se marca en rojo.
 
-## Despliegue continuo (Render)
-La aplicación se publica en Render con el archivo [`render.yaml`](render.yaml):
+## Despliegue continuo (PythonAnywhere)
+Aplicación publicada: **https://frutmarket.pythonanywhere.com**
 
-* **Build:** `pip install -r requirements.txt`
-* **Start:** `gunicorn app:app --workers 1 --threads 4`
-* **Health check:** `/health` (responde la versión y si la base de datos está disponible)
-* **Auto-deploy:** `checksPass`, es decir, cada push a `main` se publica solo si GitHub Actions termina en verde.
-* **Variables:** `SECRET_KEY` (generada por Render), `PYTHON_VERSION` y `CARGAR_DEMO=1` (carga datos de ejemplo).
+El flujo de GitHub Actions tiene dos trabajos:
+
+1. **validar**: flake8 y pytest en cada push.
+2. **desplegar**: solo en `main` y solo si `validar` pasó. Ejecuta [`scripts/deploy_pythonanywhere.py`](scripts/deploy_pythonanywhere.py), que con la API de PythonAnywhere sube los archivos de la aplicación, recarga la web app y revisa que `/health` responda con la versión nueva.
+
+El token de la API se guarda como secreto del repositorio (`PA_API_TOKEN`), nunca en el código.
+`/health` devuelve el estado, la versión y si la base de datos responde.
 
 Las versiones se marcan con etiquetas de Git (`v1.0.0`, `v1.1.0`, …) y se describen en [CHANGELOG.md](CHANGELOG.md).
-
-> Nota: en el plan gratuito de Render el disco es temporal, así que la base SQLite se reinicia en cada despliegue y el servicio se suspende tras 15 minutos sin visitas.
