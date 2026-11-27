@@ -44,5 +44,16 @@ cp -r app.py database.py demo_data.py VERSION requirements.txt templates static 
 # Tocar el archivo WSGI recarga la web app en PythonAnywhere
 touch "$WSGI"
 
-sleep 20
-echo "$(date '+%F %T') /health -> $(curl -s -m 20 "$URL" || echo 'sin respuesta')"
+# La recarga tarda alrededor de un minuto: se espera hasta que /health reporte la versión nueva
+VERSION_NUEVA=$(cat VERSION)
+for i in $(seq 1 24); do
+    sleep 5
+    RESP=$(curl -s -m 20 "$URL" || true)
+    if echo "$RESP" | grep -q "\"version\":\"$VERSION_NUEVA\""; then
+        echo "$(date '+%F %T') OK /health -> $RESP"
+        exit 0
+    fi
+done
+echo "$(date '+%F %T') ERROR: después de 2 minutos /health no reporta la versión $VERSION_NUEVA"
+echo "  última respuesta: $RESP"
+exit 1
