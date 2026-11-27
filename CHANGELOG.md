@@ -1,5 +1,11 @@
 # Historial de versiones
 
+## [1.2.1] - 2026-11-27
+Actualización publicada con el despliegue desde PythonAnywhere.
+
+- `/health` muestra `iniciado`: la fecha y hora en que arrancó la versión publicada, para comprobar cada despliegue.
+- Nuevo script `scripts/pa_autodeploy.sh`: toma `main` de GitHub, copia los archivos de la aplicación y recarga la web app.
+
 ## [1.2.0] - 2026-11-22
 Mejoras de rendimiento basadas en Lighthouse y k6.
 

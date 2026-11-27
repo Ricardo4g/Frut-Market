@@ -26,6 +26,7 @@ def test_health_responde_ok(cliente):
     assert datos['status'] == 'ok'
     assert datos['base_datos'] == 'ok'
     assert datos['version']
+    assert datos['iniciado']
 
 
 def test_respuestas_incluyen_tiempo_y_version(cliente):

@@ -44,5 +44,5 @@ cp -r app.py database.py demo_data.py VERSION requirements.txt templates static 
 # Tocar el archivo WSGI recarga la web app en PythonAnywhere
 touch "$WSGI"
 
-sleep 8
+sleep 20
 echo "$(date '+%F %T') /health -> $(curl -s -m 20 "$URL" || echo 'sin respuesta')"

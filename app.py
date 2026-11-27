@@ -82,6 +82,7 @@ def health():
     total = METRICAS["peticiones"]
     return jsonify({"status": "ok" if estado == 200 else "error", "version": APP_VERSION,
                     "base_datos": bd, "uptime_s": round(time.time() - INICIO),
+                    "iniciado": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(INICIO)),
                     "peticiones": total, "errores_5xx": METRICAS["errores_5xx"],
                     "peticiones_lentas": METRICAS["lentas"],
                     "promedio_ms": round(METRICAS["total_ms"] / total, 1) if total else 0}), estado
